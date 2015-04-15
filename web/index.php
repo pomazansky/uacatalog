@@ -17,8 +17,16 @@ $app->register(new TwigServiceProvider(), [
     'twig.path' => __DIR__.'/../template'
 ]);
 
-$app->get('/', function () {
-    return 'Hello UACatalog';
+$app->get('/', function () use ($app) {
+    return $app['twig']->render('index.twig');
+});
+
+$app->get('/blog', function () use ($app) {
+    return $app['twig']->render('blog.twig');
+});
+
+$app->get('/product', function () use ($app) {
+    return $app['twig']->render('product.twig');
 });
 
 $app->run();

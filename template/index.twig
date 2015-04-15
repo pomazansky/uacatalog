@@ -1,10 +1,8 @@
-	
-	//= template/head.html
-    //= template/header.html
-    
+{% include 'head.twig' %}
+{% include 'header.twig' %}
 <div class="container-main">
-    //= template/slider.html
-    //= template/search.html
+    {% include 'slider.twig' %}
+    {% include 'search.twig' %}
 </div>
 <div class="wrapper info">
     <p>Наразі купувати українські продукти та речі не тільки вигідно, а є вже правилом гарного тону.
@@ -13,11 +11,10 @@
 	<p>На сайті зібрано повний каталог українських виробників.
     </p>
 </div>
-
-    //= template/categories-active.html
-    //= template/katalog.html
-    //= template/reviews.html
-    <p class="UA-brand-head">НАйпопулярніші українські виробники</p>
-    //= template/footer.html
+    {% include 'categories-active.twig' %}
+    {% include 'katalog.twig' %}
+    {% include 'reviews.twig' %}
+    <p class="UA-brand-head">Найпопулярніші українські виробники</p>
+    {% include 'footer.twig' %}
 </body>
 </html>

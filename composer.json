@@ -15,7 +15,9 @@
     "twig/twig": "~1.0",
     "symfony/security": "2.8.x-dev",
     "mheap/silex-assetic": "1.0.4",
-    "monolog/monolog": "1.13.1"
+    "monolog/monolog": "1.13.1",
+    "propel/propel": "~2.0@dev",
+    "propel/propel-service-provider": "2.x"
   },
   "require-dev": {
     "symfony/browser-kit"   : "~2.7"

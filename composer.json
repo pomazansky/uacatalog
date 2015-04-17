@@ -17,7 +17,9 @@
     "mheap/silex-assetic": "1.0.4",
     "monolog/monolog": "1.13.1",
     "propel/propel": "~2.0@dev",
-    "propel/propel-service-provider": "2.x"
+    "propel/propel-service-provider": "2.x",
+    "symfony/form": "2.8.x-dev",
+    "symfony/twig-bridge": "2.8.x-dev"
   },
   "require-dev": {
     "symfony/browser-kit"   : "~2.7"

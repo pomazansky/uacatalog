@@ -21,17 +21,21 @@ class BlogController implements ControllerProviderInterface
      */
     public function showAll(Application $app)
     {
-        return $app['twig']->render('blog.twig');
+        $blogEntries = BlogQuery::create()->find();
+
+        return $app['twig']->render('blog.twig', [
+            'blogEntries' => $blogEntries
+        ]);
     }
 
     /**
      * @param Application $app
-     * @param $blogId
+     * @param $id
      * @return mixed
      */
-    public function showOne(Application $app, $blogId)
+    public function showOne(Application $app, $id)
     {
-        $blogEntry = BlogQuery::create()->findPk($blogId);
+        $blogEntry = BlogQuery::create()->findPk($id);
 
         if ($blogEntry) {
             return $app['twig']->render('blog-entry.twig', [
@@ -56,7 +60,7 @@ class BlogController implements ControllerProviderInterface
 
         $factory->get('/', '\\UACatalog\\Controllers\\BlogController::showAll');
 
-        $factory->get('/{blogId}', '\\UACatalog\\Controllers\\BlogController::showOne');
+        $factory->get('/{id}', '\\UACatalog\\Controllers\\BlogController::showOne');
 
         return $factory;
     }

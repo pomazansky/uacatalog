@@ -1,0 +1,13 @@
+{% include 'head.twig' %}
+{% include 'header.twig' %}
+<div class="blog-entry">
+    <img src="{{ app.request.basepath }}/img/blog_item_1.jpg" alt="{{ title }}">
+    <div class="text-head">{{ title }}</div>
+    <p class="text">{{ content }}</div>
+
+<div class="search-container-blog">
+    {% include 'search.twig' %}
+</div>
+{% include 'footer.twig' %}
+</body>
+</html>

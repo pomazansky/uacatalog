@@ -1,0 +1,28 @@
+<style>
+    table, th, td {
+        border: 1px solid black;
+    }
+</style>
+<a href="{{ url('admin-blog-add') }}">Add new blog entry</a>
+{% if blogEntries|length > 0 %}
+<table>
+    <tr>
+        <th>ID</th>
+        <th>Image</th>
+        <th>Title</th>
+        <td>Modify</td>
+        <td>Delete</td>
+    </tr>
+    {% for entry in blogEntries %}
+    <tr>
+        <td>{{ entry.id }}</td>
+        <td><img src="{{ app.request.basepath }}/upload/{{ entry.getImgFile }}" width="40px"></td>
+        <td>{{ entry.title }}</td>
+        <td><a href="{{ url('admin-blog-modify', {id: entry.id}) }}">Modify</a></td>
+        <td><a href="{{ url('admin-blog-delete', {id: entry.id}) }}">Delete</a></td>
+    </tr>
+    {% endfor %}
+</table>
+{% else %}
+<h4>No blog entries</h4>
+{% endif %}

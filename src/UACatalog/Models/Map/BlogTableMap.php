@@ -59,7 +59,7 @@ class BlogTableMap extends TableMap
     /**
      * The total number of columns
      */
-    const NUM_COLUMNS = 3;
+    const NUM_COLUMNS = 4;
 
     /**
      * The number of lazy-loaded columns
@@ -69,7 +69,7 @@ class BlogTableMap extends TableMap
     /**
      * The number of columns to hydrate (NUM_COLUMNS - NUM_LAZY_LOAD_COLUMNS)
      */
-    const NUM_HYDRATE_COLUMNS = 3;
+    const NUM_HYDRATE_COLUMNS = 4;
 
     /**
      * the column name for the id field
@@ -87,6 +87,11 @@ class BlogTableMap extends TableMap
     const COL_TEXT = 'blog.text';
 
     /**
+     * the column name for the img_file field
+     */
+    const COL_IMG_FILE = 'blog.img_file';
+
+    /**
      * The default string format for model objects of the related table
      */
     const DEFAULT_STRING_FORMAT = 'YAML';
@@ -98,11 +103,11 @@ class BlogTableMap extends TableMap
      * e.g. self::$fieldNames[self::TYPE_PHPNAME][0] = 'Id'
      */
     protected static $fieldNames = array (
-        self::TYPE_PHPNAME       => array('Id', 'Title', 'Text', ),
-        self::TYPE_CAMELNAME     => array('id', 'title', 'text', ),
-        self::TYPE_COLNAME       => array(BlogTableMap::COL_ID, BlogTableMap::COL_TITLE, BlogTableMap::COL_TEXT, ),
-        self::TYPE_FIELDNAME     => array('id', 'title', 'text', ),
-        self::TYPE_NUM           => array(0, 1, 2, )
+        self::TYPE_PHPNAME       => array('Id', 'Title', 'Text', 'ImgFile', ),
+        self::TYPE_CAMELNAME     => array('id', 'title', 'text', 'imgFile', ),
+        self::TYPE_COLNAME       => array(BlogTableMap::COL_ID, BlogTableMap::COL_TITLE, BlogTableMap::COL_TEXT, BlogTableMap::COL_IMG_FILE, ),
+        self::TYPE_FIELDNAME     => array('id', 'title', 'text', 'img_file', ),
+        self::TYPE_NUM           => array(0, 1, 2, 3, )
     );
 
     /**
@@ -112,11 +117,11 @@ class BlogTableMap extends TableMap
      * e.g. self::$fieldKeys[self::TYPE_PHPNAME]['Id'] = 0
      */
     protected static $fieldKeys = array (
-        self::TYPE_PHPNAME       => array('Id' => 0, 'Title' => 1, 'Text' => 2, ),
-        self::TYPE_CAMELNAME     => array('id' => 0, 'title' => 1, 'text' => 2, ),
-        self::TYPE_COLNAME       => array(BlogTableMap::COL_ID => 0, BlogTableMap::COL_TITLE => 1, BlogTableMap::COL_TEXT => 2, ),
-        self::TYPE_FIELDNAME     => array('id' => 0, 'title' => 1, 'text' => 2, ),
-        self::TYPE_NUM           => array(0, 1, 2, )
+        self::TYPE_PHPNAME       => array('Id' => 0, 'Title' => 1, 'Text' => 2, 'ImgFile' => 3, ),
+        self::TYPE_CAMELNAME     => array('id' => 0, 'title' => 1, 'text' => 2, 'imgFile' => 3, ),
+        self::TYPE_COLNAME       => array(BlogTableMap::COL_ID => 0, BlogTableMap::COL_TITLE => 1, BlogTableMap::COL_TEXT => 2, BlogTableMap::COL_IMG_FILE => 3, ),
+        self::TYPE_FIELDNAME     => array('id' => 0, 'title' => 1, 'text' => 2, 'img_file' => 3, ),
+        self::TYPE_NUM           => array(0, 1, 2, 3, )
     );
 
     /**
@@ -139,6 +144,7 @@ class BlogTableMap extends TableMap
         $this->addPrimaryKey('id', 'Id', 'INTEGER', true, null, null);
         $this->addColumn('title', 'Title', 'VARCHAR', true, 255, null);
         $this->addColumn('text', 'Text', 'LONGVARCHAR', true, null, null);
+        $this->addColumn('img_file', 'ImgFile', 'VARCHAR', true, 255, null);
     } // initialize()
 
     /**
@@ -292,10 +298,12 @@ class BlogTableMap extends TableMap
             $criteria->addSelectColumn(BlogTableMap::COL_ID);
             $criteria->addSelectColumn(BlogTableMap::COL_TITLE);
             $criteria->addSelectColumn(BlogTableMap::COL_TEXT);
+            $criteria->addSelectColumn(BlogTableMap::COL_IMG_FILE);
         } else {
             $criteria->addSelectColumn($alias . '.id');
             $criteria->addSelectColumn($alias . '.title');
             $criteria->addSelectColumn($alias . '.text');
+            $criteria->addSelectColumn($alias . '.img_file');
         }
     }
 

@@ -78,6 +78,12 @@ abstract class Blog implements ActiveRecordInterface
     protected $text;
 
     /**
+     * The value for the img_file field.
+     * @var        string
+     */
+    protected $img_file;
+
+    /**
      * Flag to prevent endless save loop, if this object is referenced
      * by another object which falls in this transaction.
      *
@@ -333,6 +339,16 @@ abstract class Blog implements ActiveRecordInterface
     }
 
     /**
+     * Get the [img_file] column value.
+     * 
+     * @return string
+     */
+    public function getImgFile()
+    {
+        return $this->img_file;
+    }
+
+    /**
      * Set the value of [id] column.
      * 
      * @param int $v new value
@@ -393,6 +409,26 @@ abstract class Blog implements ActiveRecordInterface
     } // setText()
 
     /**
+     * Set the value of [img_file] column.
+     * 
+     * @param string $v new value
+     * @return $this|\UACatalog\Models\Blog The current object (for fluent API support)
+     */
+    public function setImgFile($v)
+    {
+        if ($v !== null) {
+            $v = (string) $v;
+        }
+
+        if ($this->img_file !== $v) {
+            $this->img_file = $v;
+            $this->modifiedColumns[BlogTableMap::COL_IMG_FILE] = true;
+        }
+
+        return $this;
+    } // setImgFile()
+
+    /**
      * Indicates whether the columns in this object are only set to default values.
      *
      * This method can be used in conjunction with isModified() to indicate whether an object is both
@@ -436,6 +472,9 @@ abstract class Blog implements ActiveRecordInterface
 
             $col = $row[TableMap::TYPE_NUM == $indexType ? 2 + $startcol : BlogTableMap::translateFieldName('Text', TableMap::TYPE_PHPNAME, $indexType)];
             $this->text = (null !== $col) ? (string) $col : null;
+
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 3 + $startcol : BlogTableMap::translateFieldName('ImgFile', TableMap::TYPE_PHPNAME, $indexType)];
+            $this->img_file = (null !== $col) ? (string) $col : null;
             $this->resetModified();
 
             $this->setNew(false);
@@ -444,7 +483,7 @@ abstract class Blog implements ActiveRecordInterface
                 $this->ensureConsistency();
             }
 
-            return $startcol + 3; // 3 = BlogTableMap::NUM_HYDRATE_COLUMNS.
+            return $startcol + 4; // 4 = BlogTableMap::NUM_HYDRATE_COLUMNS.
 
         } catch (Exception $e) {
             throw new PropelException(sprintf('Error populating %s object', '\\UACatalog\\Models\\Blog'), 0, $e);
@@ -650,6 +689,9 @@ abstract class Blog implements ActiveRecordInterface
         if ($this->isColumnModified(BlogTableMap::COL_TEXT)) {
             $modifiedColumns[':p' . $index++]  = 'text';
         }
+        if ($this->isColumnModified(BlogTableMap::COL_IMG_FILE)) {
+            $modifiedColumns[':p' . $index++]  = 'img_file';
+        }
 
         $sql = sprintf(
             'INSERT INTO blog (%s) VALUES (%s)',
@@ -669,6 +711,9 @@ abstract class Blog implements ActiveRecordInterface
                         break;
                     case 'text':                        
                         $stmt->bindValue($identifier, $this->text, PDO::PARAM_STR);
+                        break;
+                    case 'img_file':                        
+                        $stmt->bindValue($identifier, $this->img_file, PDO::PARAM_STR);
                         break;
                 }
             }
@@ -741,6 +786,9 @@ abstract class Blog implements ActiveRecordInterface
             case 2:
                 return $this->getText();
                 break;
+            case 3:
+                return $this->getImgFile();
+                break;
             default:
                 return null;
                 break;
@@ -773,6 +821,7 @@ abstract class Blog implements ActiveRecordInterface
             $keys[0] => $this->getId(),
             $keys[1] => $this->getTitle(),
             $keys[2] => $this->getText(),
+            $keys[3] => $this->getImgFile(),
         );
         $virtualColumns = $this->virtualColumns;
         foreach ($virtualColumns as $key => $virtualColumn) {
@@ -821,6 +870,9 @@ abstract class Blog implements ActiveRecordInterface
             case 2:
                 $this->setText($value);
                 break;
+            case 3:
+                $this->setImgFile($value);
+                break;
         } // switch()
 
         return $this;
@@ -855,6 +907,9 @@ abstract class Blog implements ActiveRecordInterface
         }
         if (array_key_exists($keys[2], $arr)) {
             $this->setText($arr[$keys[2]]);
+        }
+        if (array_key_exists($keys[3], $arr)) {
+            $this->setImgFile($arr[$keys[3]]);
         }
     }
 
@@ -905,6 +960,9 @@ abstract class Blog implements ActiveRecordInterface
         }
         if ($this->isColumnModified(BlogTableMap::COL_TEXT)) {
             $criteria->add(BlogTableMap::COL_TEXT, $this->text);
+        }
+        if ($this->isColumnModified(BlogTableMap::COL_IMG_FILE)) {
+            $criteria->add(BlogTableMap::COL_IMG_FILE, $this->img_file);
         }
 
         return $criteria;
@@ -994,6 +1052,7 @@ abstract class Blog implements ActiveRecordInterface
     {
         $copyObj->setTitle($this->getTitle());
         $copyObj->setText($this->getText());
+        $copyObj->setImgFile($this->getImgFile());
         if ($makeNew) {
             $copyObj->setNew(true);
             $copyObj->setId(NULL); // this is a auto-increment column, so set to default value
@@ -1032,6 +1091,7 @@ abstract class Blog implements ActiveRecordInterface
         $this->id = null;
         $this->title = null;
         $this->text = null;
+        $this->img_file = null;
         $this->alreadyInSave = false;
         $this->clearAllReferences();
         $this->resetModified();

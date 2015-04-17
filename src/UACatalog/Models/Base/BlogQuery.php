@@ -22,10 +22,12 @@ use UACatalog\Models\Map\BlogTableMap;
  * @method     ChildBlogQuery orderById($order = Criteria::ASC) Order by the id column
  * @method     ChildBlogQuery orderByTitle($order = Criteria::ASC) Order by the title column
  * @method     ChildBlogQuery orderByText($order = Criteria::ASC) Order by the text column
+ * @method     ChildBlogQuery orderByImgFile($order = Criteria::ASC) Order by the img_file column
  *
  * @method     ChildBlogQuery groupById() Group by the id column
  * @method     ChildBlogQuery groupByTitle() Group by the title column
  * @method     ChildBlogQuery groupByText() Group by the text column
+ * @method     ChildBlogQuery groupByImgFile() Group by the img_file column
  *
  * @method     ChildBlogQuery leftJoin($relation) Adds a LEFT JOIN clause to the query
  * @method     ChildBlogQuery rightJoin($relation) Adds a RIGHT JOIN clause to the query
@@ -36,7 +38,8 @@ use UACatalog\Models\Map\BlogTableMap;
  *
  * @method     ChildBlog findOneById(int $id) Return the first ChildBlog filtered by the id column
  * @method     ChildBlog findOneByTitle(string $title) Return the first ChildBlog filtered by the title column
- * @method     ChildBlog findOneByText(string $text) Return the first ChildBlog filtered by the text column *
+ * @method     ChildBlog findOneByText(string $text) Return the first ChildBlog filtered by the text column
+ * @method     ChildBlog findOneByImgFile(string $img_file) Return the first ChildBlog filtered by the img_file column *
 
  * @method     ChildBlog requirePk($key, ConnectionInterface $con = null) Return the ChildBlog by primary key and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  * @method     ChildBlog requireOne(ConnectionInterface $con = null) Return the first ChildBlog matching the query and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
@@ -44,11 +47,13 @@ use UACatalog\Models\Map\BlogTableMap;
  * @method     ChildBlog requireOneById(int $id) Return the first ChildBlog filtered by the id column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  * @method     ChildBlog requireOneByTitle(string $title) Return the first ChildBlog filtered by the title column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  * @method     ChildBlog requireOneByText(string $text) Return the first ChildBlog filtered by the text column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
+ * @method     ChildBlog requireOneByImgFile(string $img_file) Return the first ChildBlog filtered by the img_file column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  *
  * @method     ChildBlog[]|ObjectCollection find(ConnectionInterface $con = null) Return ChildBlog objects based on current ModelCriteria
  * @method     ChildBlog[]|ObjectCollection findById(int $id) Return ChildBlog objects filtered by the id column
  * @method     ChildBlog[]|ObjectCollection findByTitle(string $title) Return ChildBlog objects filtered by the title column
  * @method     ChildBlog[]|ObjectCollection findByText(string $text) Return ChildBlog objects filtered by the text column
+ * @method     ChildBlog[]|ObjectCollection findByImgFile(string $img_file) Return ChildBlog objects filtered by the img_file column
  * @method     ChildBlog[]|\Propel\Runtime\Util\PropelModelPager paginate($page = 1, $maxPerPage = 10, ConnectionInterface $con = null) Issue a SELECT query based on the current ModelCriteria and uses a page and a maximum number of results per page to compute an offset and a limit
  *
  */
@@ -141,7 +146,7 @@ abstract class BlogQuery extends ModelCriteria
      */
     protected function findPkSimple($key, ConnectionInterface $con)
     {
-        $sql = 'SELECT id, title, text FROM blog WHERE id = :p0';
+        $sql = 'SELECT id, title, text, img_file FROM blog WHERE id = :p0';
         try {
             $stmt = $con->prepare($sql);            
             $stmt->bindValue(':p0', $key, PDO::PARAM_INT);
@@ -328,6 +333,35 @@ abstract class BlogQuery extends ModelCriteria
         }
 
         return $this->addUsingAlias(BlogTableMap::COL_TEXT, $text, $comparison);
+    }
+
+    /**
+     * Filter the query on the img_file column
+     *
+     * Example usage:
+     * <code>
+     * $query->filterByImgFile('fooValue');   // WHERE img_file = 'fooValue'
+     * $query->filterByImgFile('%fooValue%'); // WHERE img_file LIKE '%fooValue%'
+     * </code>
+     *
+     * @param     string $imgFile The value to use as filter.
+     *              Accepts wildcards (* and % trigger a LIKE)
+     * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
+     *
+     * @return $this|ChildBlogQuery The current query, for fluid interface
+     */
+    public function filterByImgFile($imgFile = null, $comparison = null)
+    {
+        if (null === $comparison) {
+            if (is_array($imgFile)) {
+                $comparison = Criteria::IN;
+            } elseif (preg_match('/[\%\*]/', $imgFile)) {
+                $imgFile = str_replace('*', '%', $imgFile);
+                $comparison = Criteria::LIKE;
+            }
+        }
+
+        return $this->addUsingAlias(BlogTableMap::COL_IMG_FILE, $imgFile, $comparison);
     }
 
     /**

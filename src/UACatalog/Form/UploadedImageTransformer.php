@@ -14,6 +14,9 @@ class UploadedImageTransformer implements DataTransformerInterface
 
     private $previousImage;
 
+    /**
+     * @param null $previousImage
+     */
     public function __construct($previousImage = null)
     {
         $this->previousImage = $previousImage;
@@ -69,11 +72,11 @@ class UploadedImageTransformer implements DataTransformerInterface
      * By convention, reverseTransform() should return NULL if an empty string
      * is passed.
      *
-     * @param mixed $value The value in the transformed representation
-     *
+     * @param mixed $file
      * @return mixed The value in the original representation
      *
-     * @throws TransformationFailedException When the transformation fails.
+     * @internal param mixed $value The value in the transformed representation
+     *
      */
     public function reverseTransform($file)
     {

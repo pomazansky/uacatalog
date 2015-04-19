@@ -22,12 +22,19 @@ class ManufacturerChoiceType extends AbstractType
         return 'manufacturer_choice';
     }
 
+    /**
+     * @return string
+     */
     public function getParent()
     {
         return 'choice';
     }
 
 
+    /**
+     * @param FormBuilderInterface $builder
+     * @param array $options
+     */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder->addModelTransformer(new ManufacturerTransformer());

@@ -33,11 +33,11 @@ class ShopsTransformer implements DataTransformerInterface
      * By convention, transform() should return an empty string if NULL is
      * passed.
      *
-     * @param mixed $value The value in the original representation
-     *
+     * @param mixed $array
      * @return mixed The value in the transformed representation
      *
-     * @throws TransformationFailedException When the transformation fails.
+     * @internal param mixed $value The value in the original representation
+     *
      */
     public function transform($array)
     {
@@ -62,11 +62,11 @@ class ShopsTransformer implements DataTransformerInterface
      * By convention, reverseTransform() should return NULL if an empty string
      * is passed.
      *
-     * @param mixed $value The value in the transformed representation
-     *
+     * @param mixed $string
      * @return mixed The value in the original representation
      *
-     * @throws TransformationFailedException When the transformation fails.
+     * @internal param mixed $value The value in the transformed representation
+     *
      */
     public function reverseTransform($string)
     {

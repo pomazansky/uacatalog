@@ -1,21 +1,21 @@
 <section class="product-page">
 	<div class="wrapper">
 		<div class="breadcrumbs">
-			<a href="#" title="Одяг">Одяг</a> >
+			<a href="#" title="{{ parentCategory.name }}">{{ parentCategory.name }}</a> >
 			<a href="#" title="{{ product.category.name }}">{{ product.category.name }}</a> >
 			<a href="#" title="{{ product.manufacturer.name }}">{{ product.manufacturer.name }}</a> >
-			<a href="{{ url('product', {id: product.id}) }}" title="{{ product.name }}">{{ product.name }}</a>
+			<a href="{{ url('product', {productId: product.id}) }}" title="{{ product.name }}">{{ product.name }}</a>
 		</div>
 		<div class="clearfix">
 			<div class="product-large-foto">
-				<a href="#" title=""><img src="{{ app.request.basepath }}/img/product_foto_1.jpg" alt=""></a>
+				<a href="#" title=""><img src="{{ app.request.basepath }}/upload/{{ product.image }}" alt=""></a>
 			</div>
 			<div class="carousel">
 				<ul class="carousel-list">
-					<li><a href="#" title="product_foto_2"><img src="{{ app.request.basepath }}/img/product_foto_2.jpg" alt="product_foto_2"></a></li>
-					<li><a href="#" title="product_foto_3"><img src="{{ app.request.basepath }}/img/product_foto_3.jpg" alt="product_foto_3"></a></li>
-					<li><a href="#" title="product_foto_4"><img src="{{ app.request.basepath }}/img/product_foto_4.jpg" alt="product_foto_4"></a></li>
-					<li><a href="#" title="product_foto_5"><img src="{{ app.request.basepath }}/img/product_foto_5.jpg" alt="product_foto_5"></a></li>
+					<li><a href="#" title="product_foto_2"><img src="{{ app.request.basepath }}/upload/no-image.png" alt="product_foto_2" width="95px" height="95px"></a></li>
+					<li><a href="#" title="product_foto_3"><img src="{{ app.request.basepath }}/upload/no-image.png" alt="product_foto_3" width="95px" height="95px"></a></li>
+					<li><a href="#" title="product_foto_4"><img src="{{ app.request.basepath }}/upload/no-image.png" alt="product_foto_4" width="95px" height="95px"></a></li>
+					<li><a href="#" title="product_foto_5"><img src="{{ app.request.basepath }}/upload/no-image.png" alt="product_foto_5" width="95px" height="95px"></a></li>
 				</ul>
 				<ul class="carousel-nav">
 					<li><a href="#" title="down" class="down"></a></li><!--
@@ -37,7 +37,7 @@
                     {% if product.manufacturer.url %}
 		    		<a href="{{ product.manufacturer.url }}" title="Сайт виробника" class="button-site">Сайт виробника</a>
 		    		{% endif %}
-                    <a href="#" title="В обране" class="button-fav">В обране</a>
+                    <a href="{{ url('collection-add', {'productId': product.id}) }}" title="В обране" class="button-fav">В обране</a>
 		    	</div>
 		    	<h2>Опис</h2>
 		    	{{ product.description|raw }}
@@ -51,36 +51,16 @@
                 {% endif %}
 			</div>
 		</div>
+        {% if sameManufacturer|length > 0 %}
 		<div class="such-brand-head">Інші товари виробника Отаман</div>
 		<div class="such-brand">
+           {% for same in sameManufacturer|slice(0, 7) %}
 			<div class="such-brand-item">
-				<img src="{{ app.request.basepath }}/img/otaman_1.jpg" alt="otaman_1">
-				<span class="image-label">Блуза "Гуцульська"</span>
+				<img src="{{ app.request.basepath }}/upload/{{ same.image }}" width="139px" height="139px">
+				<span class="image-label">{{ same.name }}</span>
 			</div>
-			<div class="such-brand-item">
-				<img src="{{ app.request.basepath }}/img/otaman_2.jpg" alt="otaman_2">
-				<span class="image-label">Пояс шкіряний чорний</span>
-			</div>
-			<div class="such-brand-item">
-				<img src="{{ app.request.basepath }}/img/otaman_3.jpg" alt="otaman_3">
-				<span class="image-label">Вишиванка батистова з молочною вишивкою</span>
-			</div>
-			<div class="such-brand-item">
-				<img src="{{ app.request.basepath }}/img/otaman_4.jpg" alt="otaman_4">
-				<span class="image-label">Вишиванка рожева з ручною вишивкою</span>
-			</div>
-			<div class="such-brand-item">
-				<img src="{{ app.request.basepath }}/img/otaman_5.jpg" alt="otaman_5">
-				<span class="image-label">Жупанчик зелений з поясом</span>
-			</div>
-			<div class="such-brand-item">
-				<img src="{{ app.request.basepath }}/img/otaman_6.jpg" alt="otaman_6">
-				<span class="image-label">Жупан жаккардовий синій</span>
-			</div>
-			<div class="such-brand-item">
-				<img src="{{ app.request.basepath }}/img/otaman_7.jpg" alt="otaman_7">
-				<span class="image-label">Жупан жаккардовий синій</span>
-			</div>
+            {% endfor %}
 		</div>
+        {% endif %}
 	</div>
 </section>

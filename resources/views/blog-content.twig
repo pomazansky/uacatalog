@@ -21,7 +21,7 @@
 					</div>
 					<p class="text">{{ entry.text|raw }}
 					</p>
-					<a href="#" title="далі" class="read-more">далі ></a>
+					<a href="{{ url('blog-entry', {'blogId': entry.id}) }}" title="далі" class="read-more">далі ></a>
 				</div>
                 {% endfor %}
                 {% set currentIndex = currentIndex + inThisColumn %}

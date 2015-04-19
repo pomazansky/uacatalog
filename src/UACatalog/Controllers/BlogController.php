@@ -30,12 +30,12 @@ class BlogController implements ControllerProviderInterface
 
     /**
      * @param Application $app
-     * @param $id
+     * @param $blogId
      * @return mixed
      */
-    public function showOne(Application $app, $id)
+    public function showOne(Application $app, $blogId)
     {
-        $blogEntry = BlogQuery::create()->findPk($id);
+        $blogEntry = BlogQuery::create()->findPk($blogId);
 
         if ($blogEntry) {
             return $app['twig']->render('blog-entry.twig', [
@@ -57,9 +57,11 @@ class BlogController implements ControllerProviderInterface
     {
         $factory = $app['controllers_factory'];
 
-        $factory->get('/', '\\UACatalog\\Controllers\\BlogController::showAll');
+        $factory->get('/', '\\UACatalog\\Controllers\\BlogController::showAll')
+            ->bind('blog');
 
-        $factory->get('/{id}', '\\UACatalog\\Controllers\\BlogController::showOne');
+        $factory->get('/{blogId}', '\\UACatalog\\Controllers\\BlogController::showOne')
+            ->bind('blog-entry');
 
         return $factory;
     }

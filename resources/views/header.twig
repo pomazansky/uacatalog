@@ -34,9 +34,9 @@
     	</ul>
     	<ul class="main-menu">
     		<li><a href="#" title="Про нас">Про нас</a></li>
-    		<li><a href="#" title="Події">Події</a></li>
-    		<li><a href="#" title="Новини">Новини</a></li>
-    		<li><a href="#" title="Блог">Блог</a></li>
+    		<li><a href="{{ url('blog') }}" title="Події">Події</a></li>
+    		<li><a href="{{ url('blog') }}" title="Новини">Новини</a></li>
+    		<li><a href="{{ url('blog') }}" title="Блог">Блог</a></li>
     	</ul>
     	<div class="personal-info">
             {% if is_granted('IS_AUTHENTICATED_FULLY') %}

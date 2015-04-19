@@ -5,14 +5,13 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use UACatalog\Controllers\AdminController;
 use UACatalog\Controllers\BlogController;
+use UACatalog\Controllers\FrontController;
 use UACatalog\Controllers\ProductController;
 
 /**
  * @var Application $app
  */
-$app->get('/', function () use ($app) {
-    return $app['twig']->render('index.twig');
-})->bind('homepage');
+$app->mount('/', new FrontController());
 
 $app->mount('/blog', new BlogController());
 
@@ -35,6 +34,8 @@ $app
 $app
     ->match('/collection/remove/{productId}', '\\UACatalog\\Controllers\\UserController::removeFavourite')
     ->bind('collection-remove');
+
+//$app->get('/admin/import', '\\UACatalog\\Controllers\\Admin\ImportController::import');
 
 $app
     ->get('/login', function (Request $request) use ($app) {

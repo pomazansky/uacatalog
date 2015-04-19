@@ -86,4 +86,17 @@ class ProductController
         ];
         return $app['twig']->render('admin-form.html.twig', $data);
     }
+
+    /**
+     * @param Application $app
+     * @param $productId
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse
+     * @throws \Propel\Runtime\Exception\PropelException
+     */
+    public function deleteProduct(Application $app, $productId)
+    {
+        $product = ProductQuery::create()->findPk($productId);
+        $product->delete();
+        return $app->redirect($app['url_generator']->generate('admin-products'));
+    }
 }

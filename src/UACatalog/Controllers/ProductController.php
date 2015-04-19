@@ -5,6 +5,8 @@ namespace UACatalog\Controllers;
 use Silex\Application;
 use Silex\ControllerCollection;
 use Silex\ControllerProviderInterface;
+use UACatalog\Models\Base\Product;
+use UACatalog\Models\CategoryQuery;
 use UACatalog\Models\ProductQuery;
 
 /**
@@ -15,16 +17,24 @@ class ProductController implements ControllerProviderInterface
 {
     /**
      * @param Application $app
-     * @param $id
+     * @param $productId
      * @return mixed
      */
-    public function showProduct(Application $app, $id)
+    public function showProduct(Application $app, $productId)
     {
-        $product = ProductQuery::create()->findPk($id);
+        $product = ProductQuery::create()->findPk($productId);
 
         if ($product) {
+            $parentCategory = CategoryQuery::create()->findOneById($product->getCategory()->getParentId());
+            $sameManufacturer = ProductQuery::create()->findByManufacturerId($product->getManufacturer()->getId());
+            $sameCategory = ProductQuery::create()->findByCategoryId($product->getCategory()->getId());
+
             return $app['twig']->render('product.twig', [
-                'product' => $product
+                'product' => $product,
+                'category' => $product->getCategory(),
+                'parentCategory' => $parentCategory,
+                'sameManufacturer' => $sameManufacturer,
+                'sameCategory' => $sameCategory
             ]);
         }
     }
@@ -40,7 +50,7 @@ class ProductController implements ControllerProviderInterface
     {
         $factory = $app['controllers_factory'];
 
-        $factory->get('/{id}', '\\UACatalog\\Controllers\\ProductController::showProduct')
+        $factory->get('/{productId}', '\\UACatalog\\Controllers\\ProductController::showProduct')
             ->bind('product');
 
         return $factory;

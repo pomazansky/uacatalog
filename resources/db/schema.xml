@@ -23,16 +23,7 @@
           xsi:noNamespaceSchemaLocation="http://xsd.propelorm.org/1.6/database.xsd"
           namespace="UACatalog\Models"
         >
-    <!-- Within the <database> tag, Propel expects one <table> tag for each table -->
 
-
-    <!--
-        Each table element should have a `name` attribute. It will be used for naming the sql table.
-
-        The `phpName` is the name that Propel will use for the generated PHP class. By default, Propel uses a
-        CamelCase version of the table name as its phpName - that means that you could omit the `phpName` attribute
-        on our `book` table.
-    -->
     <table name="blog" phpName="Blog">
         <!--
             Each column has a `name` (the one used by the database), and an optional `phpName` attribute. Once again,
@@ -56,16 +47,37 @@
         <column name="id" type="integer" required="true" primaryKey="true" autoIncrement="true"/>
         <column name="title" type="varchar" size="255" required="true"/>
         <column name="text" type="longvarchar" required="true"/>
-        <column name="img_file" type="varchar" size="255" required="true"/>
-
+        <column name="image" type="varchar" size="255" required="true"/>
     </table>
-    <!--
-        When you're done with editing, open a terminal and run
-            `$ cd /var/www/uwc/uacatalog/resources/db`
-            `$ vendor/bin/propel build`
-        to generate the model classes.
 
-        You should now be able to perform basic crud operations with your models. To learn how to use these models
-        please look into our documentation: http://propelorm.org/documentation/03-basic-crud.html
-    -->
+    <table name="product" phpName="Product">
+        <column name="id" type="integer" required="true" primaryKey="true" autoIncrement="true"/>
+        <column name="name" type="varchar" size="255" required="true"/>
+        <column name="price" type="real"/>
+        <column name="description" type="longvarchar" required="true"/>
+        <column name="images" type="array" required="true"/>
+        <column name="category_id" type="integer" required="true"/>
+        <column name="manufacturer_id" type="integer" required="true"/>
+
+        <foreign-key foreignTable="category" phpName="Category" refPhpName="Product">
+            <reference local="category_id" foreign="id"/>
+        </foreign-key>
+        <foreign-key foreignTable="manufacturer" phpName="Manufacturer" refPhpName="Product">
+            <reference local="manufacturer_id" foreign="id"/>
+        </foreign-key>
+    </table>
+
+    <table name="category" phpName="Category">
+        <column name="id" type="integer" required="true" primaryKey="true" autoIncrement="true"/>
+        <column name="name" type="varchar" size="255" required="true"/>
+        <column name="parent_id" type="integer"/>
+    </table>
+
+    <table name="manufacturer" phpName="Manufacturer">
+        <column name="id" type="integer" required="true" primaryKey="true" autoIncrement="true"/>
+        <column name="name" type="varchar" size="255" required="true"/>
+        <column name="url" type="varchar" size="255"/>
+        <column name="shops" type="array"/>
+    </table>
+
 </database>

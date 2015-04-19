@@ -40,10 +40,11 @@ class ManufacturerType extends AbstractType
                             'rows' => '7',
                             'class' => 'u-full-width'
                         ],
-                        'label' => 'Shops (one per line)'
+                        'label' => 'Shops (one per line)',
+                        'required' => false
                     ]
-                )->addModelTransformer(new ShopsTransformer())
-            )
+                )
+                ->addModelTransformer(new ShopsTransformer()))
             ->add('save', 'submit', [
                 'attr' => [
                     'class' => 'button-primary u-pull-right'

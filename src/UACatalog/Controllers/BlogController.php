@@ -39,8 +39,7 @@ class BlogController implements ControllerProviderInterface
 
         if ($blogEntry) {
             return $app['twig']->render('blog-entry.twig', [
-                'title' => $blogEntry->getTitle(),
-                'content' => $blogEntry->getText()
+                'entry' => $blogEntry
             ]);
         } else {
             return new Response('404', 404);

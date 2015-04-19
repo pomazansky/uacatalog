@@ -30,6 +30,7 @@ CREATE TABLE `product`
     `name` VARCHAR(255) NOT NULL,
     `price` DOUBLE NOT NULL,
     `description` TEXT NOT NULL,
+    `image` VARCHAR(255) NOT NULL,
     `category_id` INTEGER NOT NULL,
     `manufacturer_id` INTEGER NOT NULL,
     PRIMARY KEY (`id`),

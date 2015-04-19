@@ -50,16 +50,16 @@ class ProductType extends AbstractType
                     'rows' => '7',
                     'class' => 'u-full-width ckeditor'
                 ]
-            ])
-            ->add('images', 'file', [
-//                'constraints' => new Assert\Image(),
-                'required' => false,
-                'label' => 'Image',
-                'data_class' => null,
-                'attr' => [
-                    'accept' => 'image/*'
-                ]
             ]);
+//            ->add('images', 'file', [
+////                'constraints' => new Assert\Image(),
+//                'required' => false,
+//                'label' => 'Image',
+//                'data_class' => null,
+//                'attr' => [
+//                    'accept' => 'image/*'
+//                ]
+//            ]);
 
         $builder->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) {
             $form = $event->getForm();

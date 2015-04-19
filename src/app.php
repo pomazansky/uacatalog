@@ -45,6 +45,7 @@ $app->register(new SecurityServiceProvider(), [
     ],
     'security.access_rules' => [
         ['^/admin', 'ROLE_ADMIN'],
+        ['^/collection', 'ROLE_USER'],
     ],
     'security.encoder.digest' => $app->share(function () {
         return new BCryptPasswordEncoder(4);

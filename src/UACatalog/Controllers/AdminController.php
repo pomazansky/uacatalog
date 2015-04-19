@@ -50,16 +50,16 @@ class AdminController implements ControllerProviderInterface
         $factory->match('/blog/delete/{blogId}', '\\UACatalog\\Controllers\\Admin\\BlogController::deleteBlogEntry')
             ->bind('admin-blog-delete');
 
-        $factory->get('/products', '\\UACatalog\\Controllers\\Admin\\ProductsController::listProducts')
+        $factory->get('/products', '\\UACatalog\\Controllers\\Admin\\ProductController::listProducts')
             ->bind('admin-products');
 
-        $factory->match('/product/add', '\\UACatalog\\Controllers\\Admin\\ProductsController::addProduct')
+        $factory->match('/product/add', '\\UACatalog\\Controllers\\Admin\\ProductController::addProduct')
             ->bind('admin-product-add');
 
-        $factory->match('/product/modify/{productId}', '\\UACatalog\\Controllers\\Admin\\ProductsController::modifyProduct')
+        $factory->match('/product/modify/{productId}', '\\UACatalog\\Controllers\\Admin\\ProductController::modifyProduct')
             ->bind('admin-product-modify');
 
-        $factory->match('/product/delete/{productId}', '\\UACatalog\\Controllers\\Admin\\ProductsController::deleteProduct')
+        $factory->match('/product/delete/{productId}', '\\UACatalog\\Controllers\\Admin\\ProductController::deleteProduct')
             ->bind('admin-product-delete');
 
         $factory->get('/manufacturers', '\\UACatalog\\Controllers\\Admin\\ManufacturerController::listManufacturers')

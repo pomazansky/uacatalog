@@ -42,9 +42,9 @@ class CategoryTransformer implements DataTransformerInterface
      */
     public function transform($category)
     {
-        if (null === $category) {
-            return '';
-        }
+//        if (null === $category) {
+//            return '';
+//        }
 
         return $category;
     }

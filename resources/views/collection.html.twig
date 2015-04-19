@@ -1,0 +1,5 @@
+{% for product in favourites %}
+    <p>Favourite product: {{ product.name }}</p> <a href="{{ url('collection-remove', {'productId': product.id}) }}">Remove</a>
+{% else %}
+    No vafourite products
+{% endfor %}

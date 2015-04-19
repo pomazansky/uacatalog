@@ -41,7 +41,7 @@
     	<div class="personal-info">
             {% if is_granted('IS_AUTHENTICATED_FULLY') %}
                 <a href="#" title="Привіт, {{ app.security.token.user.username }}" class="login">Привіт, {{ app.security.token.user.username }}</a>
-                <a href="#" title="Моя колекція" class="my-collection">Моя колекція</a>
+                <a href="{{ url('collection') }}" title="Моя колекція" class="my-collection">Моя колекція</a>
                 <a href="{{ url('logout') }}" class="login">Logout</a>
             {% else %}
                 <a href="{{ url('login') }}" class="login">Login</a> or

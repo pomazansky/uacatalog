@@ -9,6 +9,7 @@ use Propel\Runtime\ActiveQuery\Criteria;
 use Propel\Runtime\ActiveQuery\ModelCriteria;
 use Propel\Runtime\ActiveRecord\ActiveRecordInterface;
 use Propel\Runtime\Collection\Collection;
+use Propel\Runtime\Collection\ObjectCollection;
 use Propel\Runtime\Connection\ConnectionInterface;
 use Propel\Runtime\Exception\BadMethodCallException;
 use Propel\Runtime\Exception\LogicException;
@@ -19,7 +20,12 @@ use UACatalog\Models\Category as ChildCategory;
 use UACatalog\Models\CategoryQuery as ChildCategoryQuery;
 use UACatalog\Models\Manufacturer as ChildManufacturer;
 use UACatalog\Models\ManufacturerQuery as ChildManufacturerQuery;
+use UACatalog\Models\Product as ChildProduct;
 use UACatalog\Models\ProductQuery as ChildProductQuery;
+use UACatalog\Models\User as ChildUser;
+use UACatalog\Models\UserProduct as ChildUserProduct;
+use UACatalog\Models\UserProductQuery as ChildUserProductQuery;
+use UACatalog\Models\UserQuery as ChildUserQuery;
 use UACatalog\Models\Map\ProductTableMap;
 
 /**
@@ -88,19 +94,6 @@ abstract class Product implements ActiveRecordInterface
     protected $description;
 
     /**
-     * The value for the images field.
-     * @var        array
-     */
-    protected $images;
-
-    /**
-     * The unserialized $images value - i.e. the persisted object.
-     * This is necessary to avoid repeated calls to unserialize() at runtime.
-     * @var object
-     */
-    protected $images_unserialized;
-
-    /**
      * The value for the category_id field.
      * @var        int
      */
@@ -123,12 +116,40 @@ abstract class Product implements ActiveRecordInterface
     protected $aManufacturer;
 
     /**
+     * @var        ObjectCollection|ChildUserProduct[] Collection to store aggregation of ChildUserProduct objects.
+     */
+    protected $collUserProducts;
+    protected $collUserProductsPartial;
+
+    /**
+     * @var        ObjectCollection|ChildUser[] Cross Collection to store aggregation of ChildUser objects.
+     */
+    protected $collUsers;
+
+    /**
+     * @var bool
+     */
+    protected $collUsersPartial;
+
+    /**
      * Flag to prevent endless save loop, if this object is referenced
      * by another object which falls in this transaction.
      *
      * @var boolean
      */
     protected $alreadyInSave = false;
+
+    /**
+     * An array of objects scheduled for deletion.
+     * @var ObjectCollection|ChildUser[]
+     */
+    protected $usersScheduledForDeletion = null;
+
+    /**
+     * An array of objects scheduled for deletion.
+     * @var ObjectCollection|ChildUserProduct[]
+     */
+    protected $userProductsScheduledForDeletion = null;
 
     /**
      * Initializes internal state of UACatalog\Models\Base\Product object.
@@ -388,35 +409,6 @@ abstract class Product implements ActiveRecordInterface
     }
 
     /**
-     * Get the [images] column value.
-     * 
-     * @return array
-     */
-    public function getImages()
-    {
-        if (null === $this->images_unserialized) {
-            $this->images_unserialized = array();
-        }
-        if (!$this->images_unserialized && null !== $this->images) {
-            $images_unserialized = substr($this->images, 2, -2);
-            $this->images_unserialized = $images_unserialized ? explode(' | ', $images_unserialized) : array();
-        }
-
-        return $this->images_unserialized;
-    }
-
-    /**
-     * Test the presence of a value in the [images] array column value.
-     * @param      mixed $value
-     * 
-     * @return boolean
-     */
-    public function hasImage($value)
-    {
-        return in_array($value, $this->getImages());
-    } // hasImage()
-
-    /**
      * Get the [category_id] column value.
      * 
      * @return int
@@ -517,57 +509,6 @@ abstract class Product implements ActiveRecordInterface
     } // setDescription()
 
     /**
-     * Set the value of [images] column.
-     * 
-     * @param array $v new value
-     * @return $this|\UACatalog\Models\Product The current object (for fluent API support)
-     */
-    public function setImages($v)
-    {
-        if ($this->images_unserialized !== $v) {
-            $this->images_unserialized = $v;
-            $this->images = '| ' . implode(' | ', $v) . ' |';
-            $this->modifiedColumns[ProductTableMap::COL_IMAGES] = true;
-        }
-
-        return $this;
-    } // setImages()
-
-    /**
-     * Adds a value to the [images] array column value.
-     * @param  mixed $value
-     * 
-     * @return $this|\UACatalog\Models\Product The current object (for fluent API support)
-     */
-    public function addImage($value)
-    {
-        $currentArray = $this->getImages();
-        $currentArray []= $value;
-        $this->setImages($currentArray);
-
-        return $this;
-    } // addImage()
-
-    /**
-     * Removes a value from the [images] array column value.
-     * @param  mixed $value
-     * 
-     * @return $this|\UACatalog\Models\Product The current object (for fluent API support)
-     */
-    public function removeImage($value)
-    {
-        $targetArray = array();
-        foreach ($this->getImages() as $element) {
-            if ($element != $value) {
-                $targetArray []= $element;
-            }
-        }
-        $this->setImages($targetArray);
-
-        return $this;
-    } // removeImage()
-
-    /**
      * Set the value of [category_id] column.
      * 
      * @param int $v new value
@@ -663,14 +604,10 @@ abstract class Product implements ActiveRecordInterface
             $col = $row[TableMap::TYPE_NUM == $indexType ? 3 + $startcol : ProductTableMap::translateFieldName('Description', TableMap::TYPE_PHPNAME, $indexType)];
             $this->description = (null !== $col) ? (string) $col : null;
 
-            $col = $row[TableMap::TYPE_NUM == $indexType ? 4 + $startcol : ProductTableMap::translateFieldName('Images', TableMap::TYPE_PHPNAME, $indexType)];
-            $this->images = $col;
-            $this->images_unserialized = null;
-
-            $col = $row[TableMap::TYPE_NUM == $indexType ? 5 + $startcol : ProductTableMap::translateFieldName('CategoryId', TableMap::TYPE_PHPNAME, $indexType)];
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 4 + $startcol : ProductTableMap::translateFieldName('CategoryId', TableMap::TYPE_PHPNAME, $indexType)];
             $this->category_id = (null !== $col) ? (int) $col : null;
 
-            $col = $row[TableMap::TYPE_NUM == $indexType ? 6 + $startcol : ProductTableMap::translateFieldName('ManufacturerId', TableMap::TYPE_PHPNAME, $indexType)];
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 5 + $startcol : ProductTableMap::translateFieldName('ManufacturerId', TableMap::TYPE_PHPNAME, $indexType)];
             $this->manufacturer_id = (null !== $col) ? (int) $col : null;
             $this->resetModified();
 
@@ -680,7 +617,7 @@ abstract class Product implements ActiveRecordInterface
                 $this->ensureConsistency();
             }
 
-            return $startcol + 7; // 7 = ProductTableMap::NUM_HYDRATE_COLUMNS.
+            return $startcol + 6; // 6 = ProductTableMap::NUM_HYDRATE_COLUMNS.
 
         } catch (Exception $e) {
             throw new PropelException(sprintf('Error populating %s object', '\\UACatalog\\Models\\Product'), 0, $e);
@@ -749,6 +686,9 @@ abstract class Product implements ActiveRecordInterface
 
             $this->aCategory = null;
             $this->aManufacturer = null;
+            $this->collUserProducts = null;
+
+            $this->collUsers = null;
         } // if (deep)
     }
 
@@ -878,6 +818,52 @@ abstract class Product implements ActiveRecordInterface
                 $this->resetModified();
             }
 
+            if ($this->usersScheduledForDeletion !== null) {
+                if (!$this->usersScheduledForDeletion->isEmpty()) {
+                    $pks = array();
+                    foreach ($this->usersScheduledForDeletion as $entry) {
+                        $entryPk = [];
+
+                        $entryPk[1] = $this->getId();
+                        $entryPk[0] = $entry->getId();
+                        $pks[] = $entryPk;
+                    }
+
+                    \UACatalog\Models\UserProductQuery::create()
+                        ->filterByPrimaryKeys($pks)
+                        ->delete($con);
+
+                    $this->usersScheduledForDeletion = null;
+                }
+
+            }
+
+            if ($this->collUsers) {
+                foreach ($this->collUsers as $user) {
+                    if (!$user->isDeleted() && ($user->isNew() || $user->isModified())) {
+                        $user->save($con);
+                    }
+                }
+            }
+
+
+            if ($this->userProductsScheduledForDeletion !== null) {
+                if (!$this->userProductsScheduledForDeletion->isEmpty()) {
+                    \UACatalog\Models\UserProductQuery::create()
+                        ->filterByPrimaryKeys($this->userProductsScheduledForDeletion->getPrimaryKeys(false))
+                        ->delete($con);
+                    $this->userProductsScheduledForDeletion = null;
+                }
+            }
+
+            if ($this->collUserProducts !== null) {
+                foreach ($this->collUserProducts as $referrerFK) {
+                    if (!$referrerFK->isDeleted() && ($referrerFK->isNew() || $referrerFK->isModified())) {
+                        $affectedRows += $referrerFK->save($con);
+                    }
+                }
+            }
+
             $this->alreadyInSave = false;
 
         }
@@ -916,9 +902,6 @@ abstract class Product implements ActiveRecordInterface
         if ($this->isColumnModified(ProductTableMap::COL_DESCRIPTION)) {
             $modifiedColumns[':p' . $index++]  = 'description';
         }
-        if ($this->isColumnModified(ProductTableMap::COL_IMAGES)) {
-            $modifiedColumns[':p' . $index++]  = 'images';
-        }
         if ($this->isColumnModified(ProductTableMap::COL_CATEGORY_ID)) {
             $modifiedColumns[':p' . $index++]  = 'category_id';
         }
@@ -947,9 +930,6 @@ abstract class Product implements ActiveRecordInterface
                         break;
                     case 'description':                        
                         $stmt->bindValue($identifier, $this->description, PDO::PARAM_STR);
-                        break;
-                    case 'images':                        
-                        $stmt->bindValue($identifier, $this->images, PDO::PARAM_STR);
                         break;
                     case 'category_id':                        
                         $stmt->bindValue($identifier, $this->category_id, PDO::PARAM_INT);
@@ -1032,12 +1012,9 @@ abstract class Product implements ActiveRecordInterface
                 return $this->getDescription();
                 break;
             case 4:
-                return $this->getImages();
-                break;
-            case 5:
                 return $this->getCategoryId();
                 break;
-            case 6:
+            case 5:
                 return $this->getManufacturerId();
                 break;
             default:
@@ -1074,9 +1051,8 @@ abstract class Product implements ActiveRecordInterface
             $keys[1] => $this->getName(),
             $keys[2] => $this->getPrice(),
             $keys[3] => $this->getDescription(),
-            $keys[4] => $this->getImages(),
-            $keys[5] => $this->getCategoryId(),
-            $keys[6] => $this->getManufacturerId(),
+            $keys[4] => $this->getCategoryId(),
+            $keys[5] => $this->getManufacturerId(),
         );
         $virtualColumns = $this->virtualColumns;
         foreach ($virtualColumns as $key => $virtualColumn) {
@@ -1113,6 +1089,21 @@ abstract class Product implements ActiveRecordInterface
                 }
         
                 $result[$key] = $this->aManufacturer->toArray($keyType, $includeLazyLoadColumns,  $alreadyDumpedObjects, true);
+            }
+            if (null !== $this->collUserProducts) {
+                
+                switch ($keyType) {
+                    case TableMap::TYPE_CAMELNAME:
+                        $key = 'userProducts';
+                        break;
+                    case TableMap::TYPE_FIELDNAME:
+                        $key = 'user_products';
+                        break;
+                    default:
+                        $key = 'UserProducts';
+                }
+        
+                $result[$key] = $this->collUserProducts->toArray(null, false, $keyType, $includeLazyLoadColumns, $alreadyDumpedObjects);
             }
         }
 
@@ -1161,16 +1152,9 @@ abstract class Product implements ActiveRecordInterface
                 $this->setDescription($value);
                 break;
             case 4:
-                if (!is_array($value)) {
-                    $v = trim(substr($value, 2, -2));
-                    $value = $v ? explode(' | ', $v) : array();
-                }
-                $this->setImages($value);
-                break;
-            case 5:
                 $this->setCategoryId($value);
                 break;
-            case 6:
+            case 5:
                 $this->setManufacturerId($value);
                 break;
         } // switch()
@@ -1212,13 +1196,10 @@ abstract class Product implements ActiveRecordInterface
             $this->setDescription($arr[$keys[3]]);
         }
         if (array_key_exists($keys[4], $arr)) {
-            $this->setImages($arr[$keys[4]]);
+            $this->setCategoryId($arr[$keys[4]]);
         }
         if (array_key_exists($keys[5], $arr)) {
-            $this->setCategoryId($arr[$keys[5]]);
-        }
-        if (array_key_exists($keys[6], $arr)) {
-            $this->setManufacturerId($arr[$keys[6]]);
+            $this->setManufacturerId($arr[$keys[5]]);
         }
     }
 
@@ -1272,9 +1253,6 @@ abstract class Product implements ActiveRecordInterface
         }
         if ($this->isColumnModified(ProductTableMap::COL_DESCRIPTION)) {
             $criteria->add(ProductTableMap::COL_DESCRIPTION, $this->description);
-        }
-        if ($this->isColumnModified(ProductTableMap::COL_IMAGES)) {
-            $criteria->add(ProductTableMap::COL_IMAGES, $this->images);
         }
         if ($this->isColumnModified(ProductTableMap::COL_CATEGORY_ID)) {
             $criteria->add(ProductTableMap::COL_CATEGORY_ID, $this->category_id);
@@ -1371,9 +1349,22 @@ abstract class Product implements ActiveRecordInterface
         $copyObj->setName($this->getName());
         $copyObj->setPrice($this->getPrice());
         $copyObj->setDescription($this->getDescription());
-        $copyObj->setImages($this->getImages());
         $copyObj->setCategoryId($this->getCategoryId());
         $copyObj->setManufacturerId($this->getManufacturerId());
+
+        if ($deepCopy) {
+            // important: temporarily setNew(false) because this affects the behavior of
+            // the getter/setter methods for fkey referrer objects.
+            $copyObj->setNew(false);
+
+            foreach ($this->getUserProducts() as $relObj) {
+                if ($relObj !== $this) {  // ensure that we don't try to copy a reference to ourselves
+                    $copyObj->addUserProduct($relObj->copy($deepCopy));
+                }
+            }
+
+        } // if ($deepCopy)
+
         if ($makeNew) {
             $copyObj->setNew(true);
             $copyObj->setId(NULL); // this is a auto-increment column, so set to default value
@@ -1504,6 +1495,510 @@ abstract class Product implements ActiveRecordInterface
         return $this->aManufacturer;
     }
 
+
+    /**
+     * Initializes a collection based on the name of a relation.
+     * Avoids crafting an 'init[$relationName]s' method name
+     * that wouldn't work when StandardEnglishPluralizer is used.
+     *
+     * @param      string $relationName The name of the relation to initialize
+     * @return void
+     */
+    public function initRelation($relationName)
+    {
+        if ('UserProduct' == $relationName) {
+            return $this->initUserProducts();
+        }
+    }
+
+    /**
+     * Clears out the collUserProducts collection
+     *
+     * This does not modify the database; however, it will remove any associated objects, causing
+     * them to be refetched by subsequent calls to accessor method.
+     *
+     * @return void
+     * @see        addUserProducts()
+     */
+    public function clearUserProducts()
+    {
+        $this->collUserProducts = null; // important to set this to NULL since that means it is uninitialized
+    }
+
+    /**
+     * Reset is the collUserProducts collection loaded partially.
+     */
+    public function resetPartialUserProducts($v = true)
+    {
+        $this->collUserProductsPartial = $v;
+    }
+
+    /**
+     * Initializes the collUserProducts collection.
+     *
+     * By default this just sets the collUserProducts collection to an empty array (like clearcollUserProducts());
+     * however, you may wish to override this method in your stub class to provide setting appropriate
+     * to your application -- for example, setting the initial array to the values stored in database.
+     *
+     * @param      boolean $overrideExisting If set to true, the method call initializes
+     *                                        the collection even if it is not empty
+     *
+     * @return void
+     */
+    public function initUserProducts($overrideExisting = true)
+    {
+        if (null !== $this->collUserProducts && !$overrideExisting) {
+            return;
+        }
+        $this->collUserProducts = new ObjectCollection();
+        $this->collUserProducts->setModel('\UACatalog\Models\UserProduct');
+    }
+
+    /**
+     * Gets an array of ChildUserProduct objects which contain a foreign key that references this object.
+     *
+     * If the $criteria is not null, it is used to always fetch the results from the database.
+     * Otherwise the results are fetched from the database the first time, then cached.
+     * Next time the same method is called without $criteria, the cached collection is returned.
+     * If this ChildProduct is new, it will return
+     * an empty collection or the current collection; the criteria is ignored on a new object.
+     *
+     * @param      Criteria $criteria optional Criteria object to narrow the query
+     * @param      ConnectionInterface $con optional connection object
+     * @return ObjectCollection|ChildUserProduct[] List of ChildUserProduct objects
+     * @throws PropelException
+     */
+    public function getUserProducts(Criteria $criteria = null, ConnectionInterface $con = null)
+    {
+        $partial = $this->collUserProductsPartial && !$this->isNew();
+        if (null === $this->collUserProducts || null !== $criteria  || $partial) {
+            if ($this->isNew() && null === $this->collUserProducts) {
+                // return empty collection
+                $this->initUserProducts();
+            } else {
+                $collUserProducts = ChildUserProductQuery::create(null, $criteria)
+                    ->filterByProduct($this)
+                    ->find($con);
+
+                if (null !== $criteria) {
+                    if (false !== $this->collUserProductsPartial && count($collUserProducts)) {
+                        $this->initUserProducts(false);
+
+                        foreach ($collUserProducts as $obj) {
+                            if (false == $this->collUserProducts->contains($obj)) {
+                                $this->collUserProducts->append($obj);
+                            }
+                        }
+
+                        $this->collUserProductsPartial = true;
+                    }
+
+                    return $collUserProducts;
+                }
+
+                if ($partial && $this->collUserProducts) {
+                    foreach ($this->collUserProducts as $obj) {
+                        if ($obj->isNew()) {
+                            $collUserProducts[] = $obj;
+                        }
+                    }
+                }
+
+                $this->collUserProducts = $collUserProducts;
+                $this->collUserProductsPartial = false;
+            }
+        }
+
+        return $this->collUserProducts;
+    }
+
+    /**
+     * Sets a collection of ChildUserProduct objects related by a one-to-many relationship
+     * to the current object.
+     * It will also schedule objects for deletion based on a diff between old objects (aka persisted)
+     * and new objects from the given Propel collection.
+     *
+     * @param      Collection $userProducts A Propel collection.
+     * @param      ConnectionInterface $con Optional connection object
+     * @return $this|ChildProduct The current object (for fluent API support)
+     */
+    public function setUserProducts(Collection $userProducts, ConnectionInterface $con = null)
+    {
+        /** @var ChildUserProduct[] $userProductsToDelete */
+        $userProductsToDelete = $this->getUserProducts(new Criteria(), $con)->diff($userProducts);
+
+        
+        //since at least one column in the foreign key is at the same time a PK
+        //we can not just set a PK to NULL in the lines below. We have to store
+        //a backup of all values, so we are able to manipulate these items based on the onDelete value later.
+        $this->userProductsScheduledForDeletion = clone $userProductsToDelete;
+
+        foreach ($userProductsToDelete as $userProductRemoved) {
+            $userProductRemoved->setProduct(null);
+        }
+
+        $this->collUserProducts = null;
+        foreach ($userProducts as $userProduct) {
+            $this->addUserProduct($userProduct);
+        }
+
+        $this->collUserProducts = $userProducts;
+        $this->collUserProductsPartial = false;
+
+        return $this;
+    }
+
+    /**
+     * Returns the number of related UserProduct objects.
+     *
+     * @param      Criteria $criteria
+     * @param      boolean $distinct
+     * @param      ConnectionInterface $con
+     * @return int             Count of related UserProduct objects.
+     * @throws PropelException
+     */
+    public function countUserProducts(Criteria $criteria = null, $distinct = false, ConnectionInterface $con = null)
+    {
+        $partial = $this->collUserProductsPartial && !$this->isNew();
+        if (null === $this->collUserProducts || null !== $criteria || $partial) {
+            if ($this->isNew() && null === $this->collUserProducts) {
+                return 0;
+            }
+
+            if ($partial && !$criteria) {
+                return count($this->getUserProducts());
+            }
+
+            $query = ChildUserProductQuery::create(null, $criteria);
+            if ($distinct) {
+                $query->distinct();
+            }
+
+            return $query
+                ->filterByProduct($this)
+                ->count($con);
+        }
+
+        return count($this->collUserProducts);
+    }
+
+    /**
+     * Method called to associate a ChildUserProduct object to this object
+     * through the ChildUserProduct foreign key attribute.
+     *
+     * @param  ChildUserProduct $l ChildUserProduct
+     * @return $this|\UACatalog\Models\Product The current object (for fluent API support)
+     */
+    public function addUserProduct(ChildUserProduct $l)
+    {
+        if ($this->collUserProducts === null) {
+            $this->initUserProducts();
+            $this->collUserProductsPartial = true;
+        }
+
+        if (!$this->collUserProducts->contains($l)) {
+            $this->doAddUserProduct($l);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param ChildUserProduct $userProduct The ChildUserProduct object to add.
+     */
+    protected function doAddUserProduct(ChildUserProduct $userProduct)
+    {
+        $this->collUserProducts[]= $userProduct;
+        $userProduct->setProduct($this);
+    }
+
+    /**
+     * @param  ChildUserProduct $userProduct The ChildUserProduct object to remove.
+     * @return $this|ChildProduct The current object (for fluent API support)
+     */
+    public function removeUserProduct(ChildUserProduct $userProduct)
+    {
+        if ($this->getUserProducts()->contains($userProduct)) {
+            $pos = $this->collUserProducts->search($userProduct);
+            $this->collUserProducts->remove($pos);
+            if (null === $this->userProductsScheduledForDeletion) {
+                $this->userProductsScheduledForDeletion = clone $this->collUserProducts;
+                $this->userProductsScheduledForDeletion->clear();
+            }
+            $this->userProductsScheduledForDeletion[]= clone $userProduct;
+            $userProduct->setProduct(null);
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * If this collection has already been initialized with
+     * an identical criteria, it returns the collection.
+     * Otherwise if this Product is new, it will return
+     * an empty collection; or if this Product has previously
+     * been saved, it will retrieve related UserProducts from storage.
+     *
+     * This method is protected by default in order to keep the public
+     * api reasonable.  You can provide public methods for those you
+     * actually need in Product.
+     *
+     * @param      Criteria $criteria optional Criteria object to narrow the query
+     * @param      ConnectionInterface $con optional connection object
+     * @param      string $joinBehavior optional join type to use (defaults to Criteria::LEFT_JOIN)
+     * @return ObjectCollection|ChildUserProduct[] List of ChildUserProduct objects
+     */
+    public function getUserProductsJoinUser(Criteria $criteria = null, ConnectionInterface $con = null, $joinBehavior = Criteria::LEFT_JOIN)
+    {
+        $query = ChildUserProductQuery::create(null, $criteria);
+        $query->joinWith('User', $joinBehavior);
+
+        return $this->getUserProducts($query, $con);
+    }
+
+    /**
+     * Clears out the collUsers collection
+     *
+     * This does not modify the database; however, it will remove any associated objects, causing
+     * them to be refetched by subsequent calls to accessor method.
+     *
+     * @return void
+     * @see        addUsers()
+     */
+    public function clearUsers()
+    {
+        $this->collUsers = null; // important to set this to NULL since that means it is uninitialized
+    }
+
+    /**
+     * Initializes the collUsers crossRef collection.
+     *
+     * By default this just sets the collUsers collection to an empty collection (like clearUsers());
+     * however, you may wish to override this method in your stub class to provide setting appropriate
+     * to your application -- for example, setting the initial array to the values stored in database.
+     *
+     * @return void
+     */
+    public function initUsers()
+    {
+        $this->collUsers = new ObjectCollection();
+        $this->collUsersPartial = true;
+
+        $this->collUsers->setModel('\UACatalog\Models\User');
+    }
+
+    /**
+     * Checks if the collUsers collection is loaded.
+     *
+     * @return bool
+     */
+    public function isUsersLoaded()
+    {
+        return null !== $this->collUsers;
+    }
+
+    /**
+     * Gets a collection of ChildUser objects related by a many-to-many relationship
+     * to the current object by way of the user_product cross-reference table.
+     *
+     * If the $criteria is not null, it is used to always fetch the results from the database.
+     * Otherwise the results are fetched from the database the first time, then cached.
+     * Next time the same method is called without $criteria, the cached collection is returned.
+     * If this ChildProduct is new, it will return
+     * an empty collection or the current collection; the criteria is ignored on a new object.
+     *
+     * @param      Criteria $criteria Optional query object to filter the query
+     * @param      ConnectionInterface $con Optional connection object
+     *
+     * @return ObjectCollection|ChildUser[] List of ChildUser objects
+     */
+    public function getUsers(Criteria $criteria = null, ConnectionInterface $con = null)
+    {
+        $partial = $this->collUsersPartial && !$this->isNew();
+        if (null === $this->collUsers || null !== $criteria || $partial) {
+            if ($this->isNew()) {
+                // return empty collection
+                if (null === $this->collUsers) {
+                    $this->initUsers();
+                }
+            } else {
+
+                $query = ChildUserQuery::create(null, $criteria)
+                    ->filterByProduct($this);
+                $collUsers = $query->find($con);
+                if (null !== $criteria) {
+                    return $collUsers;
+                }
+
+                if ($partial && $this->collUsers) {
+                    //make sure that already added objects gets added to the list of the database.
+                    foreach ($this->collUsers as $obj) {
+                        if (!$collUsers->contains($obj)) {
+                            $collUsers[] = $obj;
+                        }
+                    }
+                }
+
+                $this->collUsers = $collUsers;
+                $this->collUsersPartial = false;
+            }
+        }
+
+        return $this->collUsers;
+    }
+
+    /**
+     * Sets a collection of User objects related by a many-to-many relationship
+     * to the current object by way of the user_product cross-reference table.
+     * It will also schedule objects for deletion based on a diff between old objects (aka persisted)
+     * and new objects from the given Propel collection.
+     *
+     * @param  Collection $users A Propel collection.
+     * @param  ConnectionInterface $con Optional connection object
+     * @return $this|ChildProduct The current object (for fluent API support)
+     */
+    public function setUsers(Collection $users, ConnectionInterface $con = null)
+    {
+        $this->clearUsers();
+        $currentUsers = $this->getUsers();
+
+        $usersScheduledForDeletion = $currentUsers->diff($users);
+
+        foreach ($usersScheduledForDeletion as $toDelete) {
+            $this->removeUser($toDelete);
+        }
+
+        foreach ($users as $user) {
+            if (!$currentUsers->contains($user)) {
+                $this->doAddUser($user);
+            }
+        }
+
+        $this->collUsersPartial = false;
+        $this->collUsers = $users;
+
+        return $this;
+    }
+
+    /**
+     * Gets the number of User objects related by a many-to-many relationship
+     * to the current object by way of the user_product cross-reference table.
+     *
+     * @param      Criteria $criteria Optional query object to filter the query
+     * @param      boolean $distinct Set to true to force count distinct
+     * @param      ConnectionInterface $con Optional connection object
+     *
+     * @return int the number of related User objects
+     */
+    public function countUsers(Criteria $criteria = null, $distinct = false, ConnectionInterface $con = null)
+    {
+        $partial = $this->collUsersPartial && !$this->isNew();
+        if (null === $this->collUsers || null !== $criteria || $partial) {
+            if ($this->isNew() && null === $this->collUsers) {
+                return 0;
+            } else {
+
+                if ($partial && !$criteria) {
+                    return count($this->getUsers());
+                }
+
+                $query = ChildUserQuery::create(null, $criteria);
+                if ($distinct) {
+                    $query->distinct();
+                }
+
+                return $query
+                    ->filterByProduct($this)
+                    ->count($con);
+            }
+        } else {
+            return count($this->collUsers);
+        }
+    }
+
+    /**
+     * Associate a ChildUser to this object
+     * through the user_product cross reference table.
+     * 
+     * @param ChildUser $user
+     * @return ChildProduct The current object (for fluent API support)
+     */
+    public function addUser(ChildUser $user)
+    {
+        if ($this->collUsers === null) {
+            $this->initUsers();
+        }
+
+        if (!$this->getUsers()->contains($user)) {
+            // only add it if the **same** object is not already associated
+            $this->collUsers->push($user);
+            $this->doAddUser($user);
+        }
+
+        return $this;
+    }
+
+    /**
+     * 
+     * @param ChildUser $user
+     */
+    protected function doAddUser(ChildUser $user)
+    {
+        $userProduct = new ChildUserProduct();
+
+        $userProduct->setUser($user);
+
+        $userProduct->setProduct($this);
+
+        $this->addUserProduct($userProduct);
+
+        // set the back reference to this object directly as using provided method either results
+        // in endless loop or in multiple relations
+        if (!$user->isProductsLoaded()) {
+            $user->initProducts();
+            $user->getProducts()->push($this);
+        } elseif (!$user->getProducts()->contains($this)) {
+            $user->getProducts()->push($this);
+        }
+
+    }
+
+    /**
+     * Remove user of this object
+     * through the user_product cross reference table.
+     * 
+     * @param ChildUser $user
+     * @return ChildProduct The current object (for fluent API support)
+     */
+    public function removeUser(ChildUser $user)
+    {
+        if ($this->getUsers()->contains($user)) { $userProduct = new ChildUserProduct();
+
+            $userProduct->setUser($user);
+            if ($user->isProductsLoaded()) {
+                //remove the back reference if available
+                $user->getProducts()->removeObject($this);
+            }
+
+            $userProduct->setProduct($this);
+            $this->removeUserProduct(clone $userProduct);
+            $userProduct->clear();
+
+            $this->collUsers->remove($this->collUsers->search($user));
+            
+            if (null === $this->usersScheduledForDeletion) {
+                $this->usersScheduledForDeletion = clone $this->collUsers;
+                $this->usersScheduledForDeletion->clear();
+            }
+
+            $this->usersScheduledForDeletion->push($user);
+        }
+
+
+        return $this;
+    }
+
     /**
      * Clears the current object, sets all attributes to their default values and removes
      * outgoing references as well as back-references (from other objects to this one. Results probably in a database
@@ -1521,8 +2016,6 @@ abstract class Product implements ActiveRecordInterface
         $this->name = null;
         $this->price = null;
         $this->description = null;
-        $this->images = null;
-        $this->images_unserialized = null;
         $this->category_id = null;
         $this->manufacturer_id = null;
         $this->alreadyInSave = false;
@@ -1543,8 +2036,20 @@ abstract class Product implements ActiveRecordInterface
     public function clearAllReferences($deep = false)
     {
         if ($deep) {
+            if ($this->collUserProducts) {
+                foreach ($this->collUserProducts as $o) {
+                    $o->clearAllReferences($deep);
+                }
+            }
+            if ($this->collUsers) {
+                foreach ($this->collUsers as $o) {
+                    $o->clearAllReferences($deep);
+                }
+            }
         } // if ($deep)
 
+        $this->collUserProducts = null;
+        $this->collUsers = null;
         $this->aCategory = null;
         $this->aManufacturer = null;
     }

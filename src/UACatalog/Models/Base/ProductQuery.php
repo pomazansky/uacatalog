@@ -24,7 +24,6 @@ use UACatalog\Models\Map\ProductTableMap;
  * @method     ChildProductQuery orderByName($order = Criteria::ASC) Order by the name column
  * @method     ChildProductQuery orderByPrice($order = Criteria::ASC) Order by the price column
  * @method     ChildProductQuery orderByDescription($order = Criteria::ASC) Order by the description column
- * @method     ChildProductQuery orderByImages($order = Criteria::ASC) Order by the images column
  * @method     ChildProductQuery orderByCategoryId($order = Criteria::ASC) Order by the category_id column
  * @method     ChildProductQuery orderByManufacturerId($order = Criteria::ASC) Order by the manufacturer_id column
  *
@@ -32,7 +31,6 @@ use UACatalog\Models\Map\ProductTableMap;
  * @method     ChildProductQuery groupByName() Group by the name column
  * @method     ChildProductQuery groupByPrice() Group by the price column
  * @method     ChildProductQuery groupByDescription() Group by the description column
- * @method     ChildProductQuery groupByImages() Group by the images column
  * @method     ChildProductQuery groupByCategoryId() Group by the category_id column
  * @method     ChildProductQuery groupByManufacturerId() Group by the manufacturer_id column
  *
@@ -48,7 +46,11 @@ use UACatalog\Models\Map\ProductTableMap;
  * @method     ChildProductQuery rightJoinManufacturer($relationAlias = null) Adds a RIGHT JOIN clause to the query using the Manufacturer relation
  * @method     ChildProductQuery innerJoinManufacturer($relationAlias = null) Adds a INNER JOIN clause to the query using the Manufacturer relation
  *
- * @method     \UACatalog\Models\CategoryQuery|\UACatalog\Models\ManufacturerQuery endUse() Finalizes a secondary criteria and merges it with its primary Criteria
+ * @method     ChildProductQuery leftJoinUserProduct($relationAlias = null) Adds a LEFT JOIN clause to the query using the UserProduct relation
+ * @method     ChildProductQuery rightJoinUserProduct($relationAlias = null) Adds a RIGHT JOIN clause to the query using the UserProduct relation
+ * @method     ChildProductQuery innerJoinUserProduct($relationAlias = null) Adds a INNER JOIN clause to the query using the UserProduct relation
+ *
+ * @method     \UACatalog\Models\CategoryQuery|\UACatalog\Models\ManufacturerQuery|\UACatalog\Models\UserProductQuery endUse() Finalizes a secondary criteria and merges it with its primary Criteria
  *
  * @method     ChildProduct findOne(ConnectionInterface $con = null) Return the first ChildProduct matching the query
  * @method     ChildProduct findOneOrCreate(ConnectionInterface $con = null) Return the first ChildProduct matching the query, or a new ChildProduct object populated from the query conditions when no match is found
@@ -57,7 +59,6 @@ use UACatalog\Models\Map\ProductTableMap;
  * @method     ChildProduct findOneByName(string $name) Return the first ChildProduct filtered by the name column
  * @method     ChildProduct findOneByPrice(double $price) Return the first ChildProduct filtered by the price column
  * @method     ChildProduct findOneByDescription(string $description) Return the first ChildProduct filtered by the description column
- * @method     ChildProduct findOneByImages(array $images) Return the first ChildProduct filtered by the images column
  * @method     ChildProduct findOneByCategoryId(int $category_id) Return the first ChildProduct filtered by the category_id column
  * @method     ChildProduct findOneByManufacturerId(int $manufacturer_id) Return the first ChildProduct filtered by the manufacturer_id column *
 
@@ -68,7 +69,6 @@ use UACatalog\Models\Map\ProductTableMap;
  * @method     ChildProduct requireOneByName(string $name) Return the first ChildProduct filtered by the name column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  * @method     ChildProduct requireOneByPrice(double $price) Return the first ChildProduct filtered by the price column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  * @method     ChildProduct requireOneByDescription(string $description) Return the first ChildProduct filtered by the description column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
- * @method     ChildProduct requireOneByImages(array $images) Return the first ChildProduct filtered by the images column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  * @method     ChildProduct requireOneByCategoryId(int $category_id) Return the first ChildProduct filtered by the category_id column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  * @method     ChildProduct requireOneByManufacturerId(int $manufacturer_id) Return the first ChildProduct filtered by the manufacturer_id column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  *
@@ -77,7 +77,6 @@ use UACatalog\Models\Map\ProductTableMap;
  * @method     ChildProduct[]|ObjectCollection findByName(string $name) Return ChildProduct objects filtered by the name column
  * @method     ChildProduct[]|ObjectCollection findByPrice(double $price) Return ChildProduct objects filtered by the price column
  * @method     ChildProduct[]|ObjectCollection findByDescription(string $description) Return ChildProduct objects filtered by the description column
- * @method     ChildProduct[]|ObjectCollection findByImages(array $images) Return ChildProduct objects filtered by the images column
  * @method     ChildProduct[]|ObjectCollection findByCategoryId(int $category_id) Return ChildProduct objects filtered by the category_id column
  * @method     ChildProduct[]|ObjectCollection findByManufacturerId(int $manufacturer_id) Return ChildProduct objects filtered by the manufacturer_id column
  * @method     ChildProduct[]|\Propel\Runtime\Util\PropelModelPager paginate($page = 1, $maxPerPage = 10, ConnectionInterface $con = null) Issue a SELECT query based on the current ModelCriteria and uses a page and a maximum number of results per page to compute an offset and a limit
@@ -172,7 +171,7 @@ abstract class ProductQuery extends ModelCriteria
      */
     protected function findPkSimple($key, ConnectionInterface $con)
     {
-        $sql = 'SELECT id, name, price, description, images, category_id, manufacturer_id FROM product WHERE id = :p0';
+        $sql = 'SELECT id, name, price, description, category_id, manufacturer_id FROM product WHERE id = :p0';
         try {
             $stmt = $con->prepare($sql);            
             $stmt->bindValue(':p0', $key, PDO::PARAM_INT);
@@ -400,87 +399,6 @@ abstract class ProductQuery extends ModelCriteria
         }
 
         return $this->addUsingAlias(ProductTableMap::COL_DESCRIPTION, $description, $comparison);
-    }
-
-    /**
-     * Filter the query on the images column
-     *
-     * @param     array $images The values to use as filter.
-     * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
-     *
-     * @return $this|ChildProductQuery The current query, for fluid interface
-     */
-    public function filterByImages($images = null, $comparison = null)
-    {
-        $key = $this->getAliasedColName(ProductTableMap::COL_IMAGES);
-        if (null === $comparison || $comparison == Criteria::CONTAINS_ALL) {
-            foreach ($images as $value) {
-                $value = '%| ' . $value . ' |%';
-                if ($this->containsKey($key)) {
-                    $this->addAnd($key, $value, Criteria::LIKE);
-                } else {
-                    $this->add($key, $value, Criteria::LIKE);
-                }
-            }
-
-            return $this;
-        } elseif ($comparison == Criteria::CONTAINS_SOME) {
-            foreach ($images as $value) {
-                $value = '%| ' . $value . ' |%';
-                if ($this->containsKey($key)) {
-                    $this->addOr($key, $value, Criteria::LIKE);
-                } else {
-                    $this->add($key, $value, Criteria::LIKE);
-                }
-            }
-
-            return $this;
-        } elseif ($comparison == Criteria::CONTAINS_NONE) {
-            foreach ($images as $value) {
-                $value = '%| ' . $value . ' |%';
-                if ($this->containsKey($key)) {
-                    $this->addAnd($key, $value, Criteria::NOT_LIKE);
-                } else {
-                    $this->add($key, $value, Criteria::NOT_LIKE);
-                }
-            }
-            $this->addOr($key, null, Criteria::ISNULL);
-
-            return $this;
-        }
-
-        return $this->addUsingAlias(ProductTableMap::COL_IMAGES, $images, $comparison);
-    }
-
-    /**
-     * Filter the query on the images column
-     * @param     mixed $images The value to use as filter
-     * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::CONTAINS_ALL
-     *
-     * @return $this|ChildProductQuery The current query, for fluid interface
-     */
-    public function filterByImage($images = null, $comparison = null)
-    {
-        if (null === $comparison || $comparison == Criteria::CONTAINS_ALL) {
-            if (is_scalar($images)) {
-                $images = '%| ' . $images . ' |%';
-                $comparison = Criteria::LIKE;
-            }
-        } elseif ($comparison == Criteria::CONTAINS_NONE) {
-            $images = '%| ' . $images . ' |%';
-            $comparison = Criteria::NOT_LIKE;
-            $key = $this->getAliasedColName(ProductTableMap::COL_IMAGES);
-            if ($this->containsKey($key)) {
-                $this->addAnd($key, $images, $comparison);
-            } else {
-                $this->addAnd($key, $images, $comparison);
-            }
-            $this->addOr($key, null, Criteria::ISNULL);
-
-            return $this;
-        }
-
-        return $this->addUsingAlias(ProductTableMap::COL_IMAGES, $images, $comparison);
     }
 
     /**
@@ -721,6 +639,96 @@ abstract class ProductQuery extends ModelCriteria
         return $this
             ->joinManufacturer($relationAlias, $joinType)
             ->useQuery($relationAlias ? $relationAlias : 'Manufacturer', '\UACatalog\Models\ManufacturerQuery');
+    }
+
+    /**
+     * Filter the query by a related \UACatalog\Models\UserProduct object
+     *
+     * @param \UACatalog\Models\UserProduct|ObjectCollection $userProduct the related object to use as filter
+     * @param string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
+     *
+     * @return ChildProductQuery The current query, for fluid interface
+     */
+    public function filterByUserProduct($userProduct, $comparison = null)
+    {
+        if ($userProduct instanceof \UACatalog\Models\UserProduct) {
+            return $this
+                ->addUsingAlias(ProductTableMap::COL_ID, $userProduct->getProductId(), $comparison);
+        } elseif ($userProduct instanceof ObjectCollection) {
+            return $this
+                ->useUserProductQuery()
+                ->filterByPrimaryKeys($userProduct->getPrimaryKeys())
+                ->endUse();
+        } else {
+            throw new PropelException('filterByUserProduct() only accepts arguments of type \UACatalog\Models\UserProduct or Collection');
+        }
+    }
+
+    /**
+     * Adds a JOIN clause to the query using the UserProduct relation
+     *
+     * @param     string $relationAlias optional alias for the relation
+     * @param     string $joinType Accepted values are null, 'left join', 'right join', 'inner join'
+     *
+     * @return $this|ChildProductQuery The current query, for fluid interface
+     */
+    public function joinUserProduct($relationAlias = null, $joinType = Criteria::INNER_JOIN)
+    {
+        $tableMap = $this->getTableMap();
+        $relationMap = $tableMap->getRelation('UserProduct');
+
+        // create a ModelJoin object for this join
+        $join = new ModelJoin();
+        $join->setJoinType($joinType);
+        $join->setRelationMap($relationMap, $this->useAliasInSQL ? $this->getModelAlias() : null, $relationAlias);
+        if ($previousJoin = $this->getPreviousJoin()) {
+            $join->setPreviousJoin($previousJoin);
+        }
+
+        // add the ModelJoin to the current object
+        if ($relationAlias) {
+            $this->addAlias($relationAlias, $relationMap->getRightTable()->getName());
+            $this->addJoinObject($join, $relationAlias);
+        } else {
+            $this->addJoinObject($join, 'UserProduct');
+        }
+
+        return $this;
+    }
+
+    /**
+     * Use the UserProduct relation UserProduct object
+     *
+     * @see useQuery()
+     *
+     * @param     string $relationAlias optional alias for the relation,
+     *                                   to be used as main alias in the secondary query
+     * @param     string $joinType Accepted values are null, 'left join', 'right join', 'inner join'
+     *
+     * @return \UACatalog\Models\UserProductQuery A secondary query class using the current class as primary query
+     */
+    public function useUserProductQuery($relationAlias = null, $joinType = Criteria::INNER_JOIN)
+    {
+        return $this
+            ->joinUserProduct($relationAlias, $joinType)
+            ->useQuery($relationAlias ? $relationAlias : 'UserProduct', '\UACatalog\Models\UserProductQuery');
+    }
+
+    /**
+     * Filter the query by a related User object
+     * using the user_product table as cross reference
+     *
+     * @param User $user the related object to use as filter
+     * @param string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
+     *
+     * @return ChildProductQuery The current query, for fluid interface
+     */
+    public function filterByUser($user, $comparison = Criteria::EQUAL)
+    {
+        return $this
+            ->useUserProductQuery()
+            ->filterByUser($user, $comparison)
+            ->endUse();
     }
 
     /**

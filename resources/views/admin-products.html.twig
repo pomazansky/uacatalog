@@ -30,7 +30,7 @@
                     {% for product in products %}
                         <tr>
                             <td>{{ product.id }}</td>
-                            <td><img src="{{ app.request.basepath }}/upload/{{ product.getImg }}" width="40px"></td>
+                            <td><img src="{{ app.request.basepath }}/upload/{# product.getImg #}" width="40px"></td>
                             <td>{{ product.name }}</td>
                             <td>{{ product.manufacturer.name }}</td>
                             <td>{{ product.category.name }}</td>

@@ -25,6 +25,18 @@ $app
     ->bind('register');
 
 $app
+    ->match('/collection', '\\UACatalog\\Controllers\\UserController::showCollection')
+    ->bind('collection');
+
+$app
+    ->match('/collection/add/{productId}', '\\UACatalog\\Controllers\\UserController::addFavourite')
+    ->bind('collection-add');
+
+$app
+    ->match('/collection/remove/{productId}', '\\UACatalog\\Controllers\\UserController::removeFavourite')
+    ->bind('collection-remove');
+
+$app
     ->get('/login', function (Request $request) use ($app) {
         return $app['twig']->render('login.html.twig', [
             'error' => $app['security.last_error']($request),

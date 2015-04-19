@@ -28,9 +28,8 @@ CREATE TABLE `product`
 (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `name` VARCHAR(255) NOT NULL,
-    `price` DOUBLE,
+    `price` DOUBLE NOT NULL,
     `description` TEXT NOT NULL,
-    `images` TEXT NOT NULL,
     `category_id` INTEGER NOT NULL,
     `manufacturer_id` INTEGER NOT NULL,
     PRIMARY KEY (`id`),
@@ -83,10 +82,30 @@ CREATE TABLE `user`
 (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `username` VARCHAR(32) NOT NULL,
-    `password` VARCHAR(255) NOT NULL,
+    `password` VARCHAR(72) NOT NULL,
     `roles` TEXT NOT NULL,
     PRIMARY KEY (`id`),
     UNIQUE INDEX `username` (`username`)
+) ENGINE=InnoDB;
+
+-- ---------------------------------------------------------------------
+-- user_product
+-- ---------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `user_product`;
+
+CREATE TABLE `user_product`
+(
+    `user_id` INTEGER NOT NULL,
+    `product_id` INTEGER NOT NULL,
+    PRIMARY KEY (`user_id`,`product_id`),
+    INDEX `user_product_fi_0f5ed8` (`product_id`),
+    CONSTRAINT `user_product_fk_29554a`
+        FOREIGN KEY (`user_id`)
+        REFERENCES `user` (`id`),
+    CONSTRAINT `user_product_fk_0f5ed8`
+        FOREIGN KEY (`product_id`)
+        REFERENCES `product` (`id`)
 ) ENGINE=InnoDB;
 
 # This restores the fkey checks, after having unset them earlier

@@ -46,10 +46,11 @@ class CategoryType extends AbstractType
             $categories = CategoryQuery::create()->find();
 
             $form->add('parent_id', 'choice', [
-                'constraints' => new Assert\NotBlank(),
                 'placeholder' => 'Choose product category',
+                'label' => 'Parent category',
+                'required' => false,
                 'choices' => $this->objectToChoices($categories),
-                'data' => $this->category ? $this->category->getParentId() : null
+                'data' => $this->category ? $this->category->getParentId() : null,
             ]);
 
             $form->add('save', 'submit', [

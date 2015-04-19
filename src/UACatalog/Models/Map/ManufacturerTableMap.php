@@ -11,12 +11,12 @@ use Propel\Runtime\Exception\PropelException;
 use Propel\Runtime\Map\RelationMap;
 use Propel\Runtime\Map\TableMap;
 use Propel\Runtime\Map\TableMapTrait;
-use UACatalog\Models\Blog;
-use UACatalog\Models\BlogQuery;
+use UACatalog\Models\Manufacturer;
+use UACatalog\Models\ManufacturerQuery;
 
 
 /**
- * This class defines the structure of the 'blog' table.
+ * This class defines the structure of the 'manufacturer' table.
  *
  *
  *
@@ -26,7 +26,7 @@ use UACatalog\Models\BlogQuery;
  * (i.e. if it's a text column type).
  *
  */
-class BlogTableMap extends TableMap
+class ManufacturerTableMap extends TableMap
 {
     use InstancePoolTrait;
     use TableMapTrait;
@@ -34,7 +34,7 @@ class BlogTableMap extends TableMap
     /**
      * The (dot-path) name of this class
      */
-    const CLASS_NAME = 'UACatalog.Models.Map.BlogTableMap';
+    const CLASS_NAME = 'UACatalog.Models.Map.ManufacturerTableMap';
 
     /**
      * The default database name for this class
@@ -44,17 +44,17 @@ class BlogTableMap extends TableMap
     /**
      * The table name for this class
      */
-    const TABLE_NAME = 'blog';
+    const TABLE_NAME = 'manufacturer';
 
     /**
      * The related Propel class for this table
      */
-    const OM_CLASS = '\\UACatalog\\Models\\Blog';
+    const OM_CLASS = '\\UACatalog\\Models\\Manufacturer';
 
     /**
      * A class that can be returned by this tableMap
      */
-    const CLASS_DEFAULT = 'UACatalog.Models.Blog';
+    const CLASS_DEFAULT = 'UACatalog.Models.Manufacturer';
 
     /**
      * The total number of columns
@@ -74,22 +74,22 @@ class BlogTableMap extends TableMap
     /**
      * the column name for the id field
      */
-    const COL_ID = 'blog.id';
+    const COL_ID = 'manufacturer.id';
 
     /**
-     * the column name for the title field
+     * the column name for the name field
      */
-    const COL_TITLE = 'blog.title';
+    const COL_NAME = 'manufacturer.name';
 
     /**
-     * the column name for the text field
+     * the column name for the url field
      */
-    const COL_TEXT = 'blog.text';
+    const COL_URL = 'manufacturer.url';
 
     /**
-     * the column name for the image field
+     * the column name for the shops field
      */
-    const COL_IMAGE = 'blog.image';
+    const COL_SHOPS = 'manufacturer.shops';
 
     /**
      * The default string format for model objects of the related table
@@ -103,10 +103,10 @@ class BlogTableMap extends TableMap
      * e.g. self::$fieldNames[self::TYPE_PHPNAME][0] = 'Id'
      */
     protected static $fieldNames = array (
-        self::TYPE_PHPNAME       => array('Id', 'Title', 'Text', 'Image', ),
-        self::TYPE_CAMELNAME     => array('id', 'title', 'text', 'image', ),
-        self::TYPE_COLNAME       => array(BlogTableMap::COL_ID, BlogTableMap::COL_TITLE, BlogTableMap::COL_TEXT, BlogTableMap::COL_IMAGE, ),
-        self::TYPE_FIELDNAME     => array('id', 'title', 'text', 'image', ),
+        self::TYPE_PHPNAME       => array('Id', 'Name', 'Url', 'Shops', ),
+        self::TYPE_CAMELNAME     => array('id', 'name', 'url', 'shops', ),
+        self::TYPE_COLNAME       => array(ManufacturerTableMap::COL_ID, ManufacturerTableMap::COL_NAME, ManufacturerTableMap::COL_URL, ManufacturerTableMap::COL_SHOPS, ),
+        self::TYPE_FIELDNAME     => array('id', 'name', 'url', 'shops', ),
         self::TYPE_NUM           => array(0, 1, 2, 3, )
     );
 
@@ -117,10 +117,10 @@ class BlogTableMap extends TableMap
      * e.g. self::$fieldKeys[self::TYPE_PHPNAME]['Id'] = 0
      */
     protected static $fieldKeys = array (
-        self::TYPE_PHPNAME       => array('Id' => 0, 'Title' => 1, 'Text' => 2, 'Image' => 3, ),
-        self::TYPE_CAMELNAME     => array('id' => 0, 'title' => 1, 'text' => 2, 'image' => 3, ),
-        self::TYPE_COLNAME       => array(BlogTableMap::COL_ID => 0, BlogTableMap::COL_TITLE => 1, BlogTableMap::COL_TEXT => 2, BlogTableMap::COL_IMAGE => 3, ),
-        self::TYPE_FIELDNAME     => array('id' => 0, 'title' => 1, 'text' => 2, 'image' => 3, ),
+        self::TYPE_PHPNAME       => array('Id' => 0, 'Name' => 1, 'Url' => 2, 'Shops' => 3, ),
+        self::TYPE_CAMELNAME     => array('id' => 0, 'name' => 1, 'url' => 2, 'shops' => 3, ),
+        self::TYPE_COLNAME       => array(ManufacturerTableMap::COL_ID => 0, ManufacturerTableMap::COL_NAME => 1, ManufacturerTableMap::COL_URL => 2, ManufacturerTableMap::COL_SHOPS => 3, ),
+        self::TYPE_FIELDNAME     => array('id' => 0, 'name' => 1, 'url' => 2, 'shops' => 3, ),
         self::TYPE_NUM           => array(0, 1, 2, 3, )
     );
 
@@ -134,17 +134,17 @@ class BlogTableMap extends TableMap
     public function initialize()
     {
         // attributes
-        $this->setName('blog');
-        $this->setPhpName('Blog');
+        $this->setName('manufacturer');
+        $this->setPhpName('Manufacturer');
         $this->setIdentifierQuoting(false);
-        $this->setClassName('\\UACatalog\\Models\\Blog');
+        $this->setClassName('\\UACatalog\\Models\\Manufacturer');
         $this->setPackage('UACatalog.Models');
         $this->setUseIdGenerator(true);
         // columns
         $this->addPrimaryKey('id', 'Id', 'INTEGER', true, null, null);
-        $this->addColumn('title', 'Title', 'VARCHAR', true, 255, null);
-        $this->addColumn('text', 'Text', 'LONGVARCHAR', true, null, null);
-        $this->addColumn('image', 'Image', 'VARCHAR', true, 255, null);
+        $this->addColumn('name', 'Name', 'VARCHAR', true, 255, null);
+        $this->addColumn('url', 'Url', 'VARCHAR', false, 255, null);
+        $this->addColumn('shops', 'Shops', 'ARRAY', false, null, null);
     } // initialize()
 
     /**
@@ -152,6 +152,13 @@ class BlogTableMap extends TableMap
      */
     public function buildRelations()
     {
+        $this->addRelation('Product', '\\UACatalog\\Models\\Product', RelationMap::ONE_TO_MANY, array (
+  0 =>
+  array (
+    0 => ':manufacturer_id',
+    1 => ':id',
+  ),
+), null, null, 'Products', false);
     } // buildRelations()
 
     /**
@@ -211,7 +218,7 @@ class BlogTableMap extends TableMap
      */
     public static function getOMClass($withPrefix = true)
     {
-        return $withPrefix ? BlogTableMap::CLASS_DEFAULT : BlogTableMap::OM_CLASS;
+        return $withPrefix ? ManufacturerTableMap::CLASS_DEFAULT : ManufacturerTableMap::OM_CLASS;
     }
 
     /**
@@ -225,22 +232,22 @@ class BlogTableMap extends TableMap
      *
      * @throws PropelException Any exceptions caught during processing will be
      *                         rethrown wrapped into a PropelException.
-     * @return array           (Blog object, last column rank)
+     * @return array           (Manufacturer object, last column rank)
      */
     public static function populateObject($row, $offset = 0, $indexType = TableMap::TYPE_NUM)
     {
-        $key = BlogTableMap::getPrimaryKeyHashFromRow($row, $offset, $indexType);
-        if (null !== ($obj = BlogTableMap::getInstanceFromPool($key))) {
+        $key = ManufacturerTableMap::getPrimaryKeyHashFromRow($row, $offset, $indexType);
+        if (null !== ($obj = ManufacturerTableMap::getInstanceFromPool($key))) {
             // We no longer rehydrate the object, since this can cause data loss.
             // See http://www.propelorm.org/ticket/509
             // $obj->hydrate($row, $offset, true); // rehydrate
-            $col = $offset + BlogTableMap::NUM_HYDRATE_COLUMNS;
+            $col = $offset + ManufacturerTableMap::NUM_HYDRATE_COLUMNS;
         } else {
-            $cls = BlogTableMap::OM_CLASS;
-            /** @var Blog $obj */
+            $cls = ManufacturerTableMap::OM_CLASS;
+            /** @var Manufacturer $obj */
             $obj = new $cls();
             $col = $obj->hydrate($row, $offset, false, $indexType);
-            BlogTableMap::addInstanceToPool($obj, $key);
+            ManufacturerTableMap::addInstanceToPool($obj, $key);
         }
 
         return array($obj, $col);
@@ -263,18 +270,18 @@ class BlogTableMap extends TableMap
         $cls = static::getOMClass(false);
         // populate the object(s)
         while ($row = $dataFetcher->fetch()) {
-            $key = BlogTableMap::getPrimaryKeyHashFromRow($row, 0, $dataFetcher->getIndexType());
-            if (null !== ($obj = BlogTableMap::getInstanceFromPool($key))) {
+            $key = ManufacturerTableMap::getPrimaryKeyHashFromRow($row, 0, $dataFetcher->getIndexType());
+            if (null !== ($obj = ManufacturerTableMap::getInstanceFromPool($key))) {
                 // We no longer rehydrate the object, since this can cause data loss.
                 // See http://www.propelorm.org/ticket/509
                 // $obj->hydrate($row, 0, true); // rehydrate
                 $results[] = $obj;
             } else {
-                /** @var Blog $obj */
+                /** @var Manufacturer $obj */
                 $obj = new $cls();
                 $obj->hydrate($row);
                 $results[] = $obj;
-                BlogTableMap::addInstanceToPool($obj, $key);
+                ManufacturerTableMap::addInstanceToPool($obj, $key);
             } // if key exists
         }
 
@@ -295,15 +302,15 @@ class BlogTableMap extends TableMap
     public static function addSelectColumns(Criteria $criteria, $alias = null)
     {
         if (null === $alias) {
-            $criteria->addSelectColumn(BlogTableMap::COL_ID);
-            $criteria->addSelectColumn(BlogTableMap::COL_TITLE);
-            $criteria->addSelectColumn(BlogTableMap::COL_TEXT);
-            $criteria->addSelectColumn(BlogTableMap::COL_IMAGE);
+            $criteria->addSelectColumn(ManufacturerTableMap::COL_ID);
+            $criteria->addSelectColumn(ManufacturerTableMap::COL_NAME);
+            $criteria->addSelectColumn(ManufacturerTableMap::COL_URL);
+            $criteria->addSelectColumn(ManufacturerTableMap::COL_SHOPS);
         } else {
             $criteria->addSelectColumn($alias . '.id');
-            $criteria->addSelectColumn($alias . '.title');
-            $criteria->addSelectColumn($alias . '.text');
-            $criteria->addSelectColumn($alias . '.image');
+            $criteria->addSelectColumn($alias . '.name');
+            $criteria->addSelectColumn($alias . '.url');
+            $criteria->addSelectColumn($alias . '.shops');
         }
     }
 
@@ -316,7 +323,7 @@ class BlogTableMap extends TableMap
      */
     public static function getTableMap()
     {
-        return Propel::getServiceContainer()->getDatabaseMap(BlogTableMap::DATABASE_NAME)->getTable(BlogTableMap::TABLE_NAME);
+        return Propel::getServiceContainer()->getDatabaseMap(ManufacturerTableMap::DATABASE_NAME)->getTable(ManufacturerTableMap::TABLE_NAME);
     }
 
     /**
@@ -324,16 +331,16 @@ class BlogTableMap extends TableMap
      */
     public static function buildTableMap()
     {
-        $dbMap = Propel::getServiceContainer()->getDatabaseMap(BlogTableMap::DATABASE_NAME);
-        if (!$dbMap->hasTable(BlogTableMap::TABLE_NAME)) {
-            $dbMap->addTableObject(new BlogTableMap());
+        $dbMap = Propel::getServiceContainer()->getDatabaseMap(ManufacturerTableMap::DATABASE_NAME);
+        if (!$dbMap->hasTable(ManufacturerTableMap::TABLE_NAME)) {
+            $dbMap->addTableObject(new ManufacturerTableMap());
         }
     }
 
     /**
-     * Performs a DELETE on the database, given a Blog or Criteria object OR a primary key value.
+     * Performs a DELETE on the database, given a Manufacturer or Criteria object OR a primary key value.
      *
-     * @param mixed               $values Criteria or Blog object or primary key or array of primary keys
+     * @param mixed               $values Criteria or Manufacturer object or primary key or array of primary keys
      *              which is used to create the DELETE statement
      * @param  ConnectionInterface $con the connection to use
      * @return int             The number of affected rows (if supported by underlying database driver).  This includes CASCADE-related rows
@@ -344,27 +351,27 @@ class BlogTableMap extends TableMap
      public static function doDelete($values, ConnectionInterface $con = null)
      {
         if (null === $con) {
-            $con = Propel::getServiceContainer()->getWriteConnection(BlogTableMap::DATABASE_NAME);
+            $con = Propel::getServiceContainer()->getWriteConnection(ManufacturerTableMap::DATABASE_NAME);
         }
 
         if ($values instanceof Criteria) {
             // rename for clarity
             $criteria = $values;
-        } elseif ($values instanceof \UACatalog\Models\Blog) { // it's a model object
+        } elseif ($values instanceof \UACatalog\Models\Manufacturer) { // it's a model object
             // create criteria based on pk values
             $criteria = $values->buildPkeyCriteria();
         } else { // it's a primary key, or an array of pks
-            $criteria = new Criteria(BlogTableMap::DATABASE_NAME);
-            $criteria->add(BlogTableMap::COL_ID, (array) $values, Criteria::IN);
+            $criteria = new Criteria(ManufacturerTableMap::DATABASE_NAME);
+            $criteria->add(ManufacturerTableMap::COL_ID, (array) $values, Criteria::IN);
         }
 
-        $query = BlogQuery::create()->mergeWith($criteria);
+        $query = ManufacturerQuery::create()->mergeWith($criteria);
 
         if ($values instanceof Criteria) {
-            BlogTableMap::clearInstancePool();
+            ManufacturerTableMap::clearInstancePool();
         } elseif (!is_object($values)) { // it's a primary key, or an array of pks
             foreach ((array) $values as $singleval) {
-                BlogTableMap::removeInstanceFromPool($singleval);
+                ManufacturerTableMap::removeInstanceFromPool($singleval);
             }
         }
 
@@ -372,20 +379,20 @@ class BlogTableMap extends TableMap
     }
 
     /**
-     * Deletes all rows from the blog table.
+     * Deletes all rows from the manufacturer table.
      *
      * @param ConnectionInterface $con the connection to use
      * @return int The number of affected rows (if supported by underlying database driver).
      */
     public static function doDeleteAll(ConnectionInterface $con = null)
     {
-        return BlogQuery::create()->doDeleteAll($con);
+        return ManufacturerQuery::create()->doDeleteAll($con);
     }
 
     /**
-     * Performs an INSERT on the database, given a Blog or Criteria object.
+     * Performs an INSERT on the database, given a Manufacturer or Criteria object.
      *
-     * @param mixed               $criteria Criteria or Blog object containing data that is used to create the INSERT statement.
+     * @param mixed               $criteria Criteria or Manufacturer object containing data that is used to create the INSERT statement.
      * @param ConnectionInterface $con the ConnectionInterface connection to use
      * @return mixed           The new primary key.
      * @throws PropelException Any exceptions caught during processing will be
@@ -394,22 +401,22 @@ class BlogTableMap extends TableMap
     public static function doInsert($criteria, ConnectionInterface $con = null)
     {
         if (null === $con) {
-            $con = Propel::getServiceContainer()->getWriteConnection(BlogTableMap::DATABASE_NAME);
+            $con = Propel::getServiceContainer()->getWriteConnection(ManufacturerTableMap::DATABASE_NAME);
         }
 
         if ($criteria instanceof Criteria) {
             $criteria = clone $criteria; // rename for clarity
         } else {
-            $criteria = $criteria->buildCriteria(); // build Criteria from Blog object
+            $criteria = $criteria->buildCriteria(); // build Criteria from Manufacturer object
         }
 
-        if ($criteria->containsKey(BlogTableMap::COL_ID) && $criteria->keyContainsValue(BlogTableMap::COL_ID) ) {
-            throw new PropelException('Cannot insert a value for auto-increment primary key ('.BlogTableMap::COL_ID.')');
+        if ($criteria->containsKey(ManufacturerTableMap::COL_ID) && $criteria->keyContainsValue(ManufacturerTableMap::COL_ID) ) {
+            throw new PropelException('Cannot insert a value for auto-increment primary key ('.ManufacturerTableMap::COL_ID.')');
         }
 
 
         // Set the correct dbName
-        $query = BlogQuery::create()->mergeWith($criteria);
+        $query = ManufacturerQuery::create()->mergeWith($criteria);
 
         // use transaction because $criteria could contain info
         // for more than one table (I guess, conceivably)
@@ -418,7 +425,7 @@ class BlogTableMap extends TableMap
         });
     }
 
-} // BlogTableMap
+} // ManufacturerTableMap
 // This is the static code needed to register the TableMap for this table with the main Propel class.
 //
-BlogTableMap::buildTableMap();
+ManufacturerTableMap::buildTableMap();

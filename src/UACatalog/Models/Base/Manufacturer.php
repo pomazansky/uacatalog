@@ -9,28 +9,32 @@ use Propel\Runtime\ActiveQuery\Criteria;
 use Propel\Runtime\ActiveQuery\ModelCriteria;
 use Propel\Runtime\ActiveRecord\ActiveRecordInterface;
 use Propel\Runtime\Collection\Collection;
+use Propel\Runtime\Collection\ObjectCollection;
 use Propel\Runtime\Connection\ConnectionInterface;
 use Propel\Runtime\Exception\BadMethodCallException;
 use Propel\Runtime\Exception\LogicException;
 use Propel\Runtime\Exception\PropelException;
 use Propel\Runtime\Map\TableMap;
 use Propel\Runtime\Parser\AbstractParser;
-use UACatalog\Models\BlogQuery as ChildBlogQuery;
-use UACatalog\Models\Map\BlogTableMap;
+use UACatalog\Models\Manufacturer as ChildManufacturer;
+use UACatalog\Models\ManufacturerQuery as ChildManufacturerQuery;
+use UACatalog\Models\Product as ChildProduct;
+use UACatalog\Models\ProductQuery as ChildProductQuery;
+use UACatalog\Models\Map\ManufacturerTableMap;
 
 /**
- * Base class that represents a row from the 'blog' table.
+ * Base class that represents a row from the 'manufacturer' table.
  *
  * 
  *
 * @package    propel.generator.UACatalog.Models.Base
 */
-abstract class Blog implements ActiveRecordInterface 
+abstract class Manufacturer implements ActiveRecordInterface 
 {
     /**
      * TableMap class name
      */
-    const TABLE_MAP = '\\UACatalog\\Models\\Map\\BlogTableMap';
+    const TABLE_MAP = '\\UACatalog\\Models\\Map\\ManufacturerTableMap';
 
 
     /**
@@ -66,22 +70,35 @@ abstract class Blog implements ActiveRecordInterface
     protected $id;
 
     /**
-     * The value for the title field.
+     * The value for the name field.
      * @var        string
      */
-    protected $title;
+    protected $name;
 
     /**
-     * The value for the text field.
+     * The value for the url field.
      * @var        string
      */
-    protected $text;
+    protected $url;
 
     /**
-     * The value for the image field.
-     * @var        string
+     * The value for the shops field.
+     * @var        array
      */
-    protected $image;
+    protected $shops;
+
+    /**
+     * The unserialized $shops value - i.e. the persisted object.
+     * This is necessary to avoid repeated calls to unserialize() at runtime.
+     * @var object
+     */
+    protected $shops_unserialized;
+
+    /**
+     * @var        ObjectCollection|ChildProduct[] Collection to store aggregation of ChildProduct objects.
+     */
+    protected $collProducts;
+    protected $collProductsPartial;
 
     /**
      * Flag to prevent endless save loop, if this object is referenced
@@ -92,7 +109,13 @@ abstract class Blog implements ActiveRecordInterface
     protected $alreadyInSave = false;
 
     /**
-     * Initializes internal state of UACatalog\Models\Base\Blog object.
+     * An array of objects scheduled for deletion.
+     * @var ObjectCollection|ChildProduct[]
+     */
+    protected $productsScheduledForDeletion = null;
+
+    /**
+     * Initializes internal state of UACatalog\Models\Base\Manufacturer object.
      */
     public function __construct()
     {
@@ -187,9 +210,9 @@ abstract class Blog implements ActiveRecordInterface
     }
 
     /**
-     * Compares this with another <code>Blog</code> instance.  If
-     * <code>obj</code> is an instance of <code>Blog</code>, delegates to
-     * <code>equals(Blog)</code>.  Otherwise, returns <code>false</code>.
+     * Compares this with another <code>Manufacturer</code> instance.  If
+     * <code>obj</code> is an instance of <code>Manufacturer</code>, delegates to
+     * <code>equals(Manufacturer)</code>.  Otherwise, returns <code>false</code>.
      *
      * @param  mixed   $obj The object to compare to.
      * @return boolean Whether equal to the object specified.
@@ -255,7 +278,7 @@ abstract class Blog implements ActiveRecordInterface
      * @param string $name  The virtual column name
      * @param mixed  $value The value to give to the virtual column
      *
-     * @return $this|Blog The current object, for fluid interface
+     * @return $this|Manufacturer The current object, for fluid interface
      */
     public function setVirtualColumn($name, $value)
     {
@@ -319,40 +342,59 @@ abstract class Blog implements ActiveRecordInterface
     }
 
     /**
-     * Get the [title] column value.
+     * Get the [name] column value.
      * 
      * @return string
      */
-    public function getTitle()
+    public function getName()
     {
-        return $this->title;
+        return $this->name;
     }
 
     /**
-     * Get the [text] column value.
+     * Get the [url] column value.
      * 
      * @return string
      */
-    public function getText()
+    public function getUrl()
     {
-        return $this->text;
+        return $this->url;
     }
 
     /**
-     * Get the [image] column value.
+     * Get the [shops] column value.
      * 
-     * @return string
+     * @return array
      */
-    public function getImage()
+    public function getShops()
     {
-        return $this->image;
+        if (null === $this->shops_unserialized) {
+            $this->shops_unserialized = array();
+        }
+        if (!$this->shops_unserialized && null !== $this->shops) {
+            $shops_unserialized = substr($this->shops, 2, -2);
+            $this->shops_unserialized = $shops_unserialized ? explode(' | ', $shops_unserialized) : array();
+        }
+
+        return $this->shops_unserialized;
     }
+
+    /**
+     * Test the presence of a value in the [shops] array column value.
+     * @param      mixed $value
+     * 
+     * @return boolean
+     */
+    public function hasShop($value)
+    {
+        return in_array($value, $this->getShops());
+    } // hasShop()
 
     /**
      * Set the value of [id] column.
      * 
      * @param int $v new value
-     * @return $this|\UACatalog\Models\Blog The current object (for fluent API support)
+     * @return $this|\UACatalog\Models\Manufacturer The current object (for fluent API support)
      */
     public function setId($v)
     {
@@ -362,71 +404,102 @@ abstract class Blog implements ActiveRecordInterface
 
         if ($this->id !== $v) {
             $this->id = $v;
-            $this->modifiedColumns[BlogTableMap::COL_ID] = true;
+            $this->modifiedColumns[ManufacturerTableMap::COL_ID] = true;
         }
 
         return $this;
     } // setId()
 
     /**
-     * Set the value of [title] column.
+     * Set the value of [name] column.
      * 
      * @param string $v new value
-     * @return $this|\UACatalog\Models\Blog The current object (for fluent API support)
+     * @return $this|\UACatalog\Models\Manufacturer The current object (for fluent API support)
      */
-    public function setTitle($v)
+    public function setName($v)
     {
         if ($v !== null) {
             $v = (string) $v;
         }
 
-        if ($this->title !== $v) {
-            $this->title = $v;
-            $this->modifiedColumns[BlogTableMap::COL_TITLE] = true;
+        if ($this->name !== $v) {
+            $this->name = $v;
+            $this->modifiedColumns[ManufacturerTableMap::COL_NAME] = true;
         }
 
         return $this;
-    } // setTitle()
+    } // setName()
 
     /**
-     * Set the value of [text] column.
+     * Set the value of [url] column.
      * 
      * @param string $v new value
-     * @return $this|\UACatalog\Models\Blog The current object (for fluent API support)
+     * @return $this|\UACatalog\Models\Manufacturer The current object (for fluent API support)
      */
-    public function setText($v)
+    public function setUrl($v)
     {
         if ($v !== null) {
             $v = (string) $v;
         }
 
-        if ($this->text !== $v) {
-            $this->text = $v;
-            $this->modifiedColumns[BlogTableMap::COL_TEXT] = true;
+        if ($this->url !== $v) {
+            $this->url = $v;
+            $this->modifiedColumns[ManufacturerTableMap::COL_URL] = true;
         }
 
         return $this;
-    } // setText()
+    } // setUrl()
 
     /**
-     * Set the value of [image] column.
+     * Set the value of [shops] column.
      * 
-     * @param string $v new value
-     * @return $this|\UACatalog\Models\Blog The current object (for fluent API support)
+     * @param array $v new value
+     * @return $this|\UACatalog\Models\Manufacturer The current object (for fluent API support)
      */
-    public function setImage($v)
+    public function setShops($v)
     {
-        if ($v !== null) {
-            $v = (string) $v;
-        }
-
-        if ($this->image !== $v) {
-            $this->image = $v;
-            $this->modifiedColumns[BlogTableMap::COL_IMAGE] = true;
+        if ($this->shops_unserialized !== $v) {
+            $this->shops_unserialized = $v;
+            $this->shops = '| ' . implode(' | ', $v) . ' |';
+            $this->modifiedColumns[ManufacturerTableMap::COL_SHOPS] = true;
         }
 
         return $this;
-    } // setImage()
+    } // setShops()
+
+    /**
+     * Adds a value to the [shops] array column value.
+     * @param  mixed $value
+     * 
+     * @return $this|\UACatalog\Models\Manufacturer The current object (for fluent API support)
+     */
+    public function addShop($value)
+    {
+        $currentArray = $this->getShops();
+        $currentArray []= $value;
+        $this->setShops($currentArray);
+
+        return $this;
+    } // addShop()
+
+    /**
+     * Removes a value from the [shops] array column value.
+     * @param  mixed $value
+     * 
+     * @return $this|\UACatalog\Models\Manufacturer The current object (for fluent API support)
+     */
+    public function removeShop($value)
+    {
+        $targetArray = array();
+        foreach ($this->getShops() as $element) {
+            if ($element != $value) {
+                $targetArray []= $element;
+            }
+        }
+        $this->setShops($targetArray);
+
+        return $this;
+    } // removeShop()
 
     /**
      * Indicates whether the columns in this object are only set to default values.
@@ -464,17 +537,18 @@ abstract class Blog implements ActiveRecordInterface
     {
         try {
 
-            $col = $row[TableMap::TYPE_NUM == $indexType ? 0 + $startcol : BlogTableMap::translateFieldName('Id', TableMap::TYPE_PHPNAME, $indexType)];
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 0 + $startcol : ManufacturerTableMap::translateFieldName('Id', TableMap::TYPE_PHPNAME, $indexType)];
             $this->id = (null !== $col) ? (int) $col : null;
 
-            $col = $row[TableMap::TYPE_NUM == $indexType ? 1 + $startcol : BlogTableMap::translateFieldName('Title', TableMap::TYPE_PHPNAME, $indexType)];
-            $this->title = (null !== $col) ? (string) $col : null;
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 1 + $startcol : ManufacturerTableMap::translateFieldName('Name', TableMap::TYPE_PHPNAME, $indexType)];
+            $this->name = (null !== $col) ? (string) $col : null;
 
-            $col = $row[TableMap::TYPE_NUM == $indexType ? 2 + $startcol : BlogTableMap::translateFieldName('Text', TableMap::TYPE_PHPNAME, $indexType)];
-            $this->text = (null !== $col) ? (string) $col : null;
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 2 + $startcol : ManufacturerTableMap::translateFieldName('Url', TableMap::TYPE_PHPNAME, $indexType)];
+            $this->url = (null !== $col) ? (string) $col : null;
 
-            $col = $row[TableMap::TYPE_NUM == $indexType ? 3 + $startcol : BlogTableMap::translateFieldName('Image', TableMap::TYPE_PHPNAME, $indexType)];
-            $this->image = (null !== $col) ? (string) $col : null;
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 3 + $startcol : ManufacturerTableMap::translateFieldName('Shops', TableMap::TYPE_PHPNAME, $indexType)];
+            $this->shops = $col;
+            $this->shops_unserialized = null;
             $this->resetModified();
 
             $this->setNew(false);
@@ -483,10 +557,10 @@ abstract class Blog implements ActiveRecordInterface
                 $this->ensureConsistency();
             }
 
-            return $startcol + 4; // 4 = BlogTableMap::NUM_HYDRATE_COLUMNS.
+            return $startcol + 4; // 4 = ManufacturerTableMap::NUM_HYDRATE_COLUMNS.
 
         } catch (Exception $e) {
-            throw new PropelException(sprintf('Error populating %s object', '\\UACatalog\\Models\\Blog'), 0, $e);
+            throw new PropelException(sprintf('Error populating %s object', '\\UACatalog\\Models\\Manufacturer'), 0, $e);
         }
     }
 
@@ -528,13 +602,13 @@ abstract class Blog implements ActiveRecordInterface
         }
 
         if ($con === null) {
-            $con = Propel::getServiceContainer()->getReadConnection(BlogTableMap::DATABASE_NAME);
+            $con = Propel::getServiceContainer()->getReadConnection(ManufacturerTableMap::DATABASE_NAME);
         }
 
         // We don't need to alter the object instance pool; we're just modifying this instance
         // already in the pool.
 
-        $dataFetcher = ChildBlogQuery::create(null, $this->buildPkeyCriteria())->setFormatter(ModelCriteria::FORMAT_STATEMENT)->find($con);
+        $dataFetcher = ChildManufacturerQuery::create(null, $this->buildPkeyCriteria())->setFormatter(ModelCriteria::FORMAT_STATEMENT)->find($con);
         $row = $dataFetcher->fetch();
         $dataFetcher->close();
         if (!$row) {
@@ -543,6 +617,8 @@ abstract class Blog implements ActiveRecordInterface
         $this->hydrate($row, 0, true, $dataFetcher->getIndexType()); // rehydrate
 
         if ($deep) {  // also de-associate any related objects?
+
+            $this->collProducts = null;
 
         } // if (deep)
     }
@@ -553,8 +629,8 @@ abstract class Blog implements ActiveRecordInterface
      * @param      ConnectionInterface $con
      * @return void
      * @throws PropelException
-     * @see Blog::setDeleted()
-     * @see Blog::isDeleted()
+     * @see Manufacturer::setDeleted()
+     * @see Manufacturer::isDeleted()
      */
     public function delete(ConnectionInterface $con = null)
     {
@@ -563,11 +639,11 @@ abstract class Blog implements ActiveRecordInterface
         }
 
         if ($con === null) {
-            $con = Propel::getServiceContainer()->getWriteConnection(BlogTableMap::DATABASE_NAME);
+            $con = Propel::getServiceContainer()->getWriteConnection(ManufacturerTableMap::DATABASE_NAME);
         }
 
         $con->transaction(function () use ($con) {
-            $deleteQuery = ChildBlogQuery::create()
+            $deleteQuery = ChildManufacturerQuery::create()
                 ->filterByPrimaryKey($this->getPrimaryKey());
             $ret = $this->preDelete($con);
             if ($ret) {
@@ -598,7 +674,7 @@ abstract class Blog implements ActiveRecordInterface
         }
 
         if ($con === null) {
-            $con = Propel::getServiceContainer()->getWriteConnection(BlogTableMap::DATABASE_NAME);
+            $con = Propel::getServiceContainer()->getWriteConnection(ManufacturerTableMap::DATABASE_NAME);
         }
 
         return $con->transaction(function () use ($con) {
@@ -617,7 +693,7 @@ abstract class Blog implements ActiveRecordInterface
                     $this->postUpdate($con);
                 }
                 $this->postSave($con);
-                BlogTableMap::addInstanceToPool($this);
+                ManufacturerTableMap::addInstanceToPool($this);
             } else {
                 $affectedRows = 0;
             }
@@ -654,6 +730,23 @@ abstract class Blog implements ActiveRecordInterface
                 $this->resetModified();
             }
 
+            if ($this->productsScheduledForDeletion !== null) {
+                if (!$this->productsScheduledForDeletion->isEmpty()) {
+                    \UACatalog\Models\ProductQuery::create()
+                        ->filterByPrimaryKeys($this->productsScheduledForDeletion->getPrimaryKeys(false))
+                        ->delete($con);
+                    $this->productsScheduledForDeletion = null;
+                }
+            }
+
+            if ($this->collProducts !== null) {
+                foreach ($this->collProducts as $referrerFK) {
+                    if (!$referrerFK->isDeleted() && ($referrerFK->isNew() || $referrerFK->isModified())) {
+                        $affectedRows += $referrerFK->save($con);
+                    }
+                }
+            }
+
             $this->alreadyInSave = false;
 
         }
@@ -674,27 +767,27 @@ abstract class Blog implements ActiveRecordInterface
         $modifiedColumns = array();
         $index = 0;
 
-        $this->modifiedColumns[BlogTableMap::COL_ID] = true;
+        $this->modifiedColumns[ManufacturerTableMap::COL_ID] = true;
         if (null !== $this->id) {
-            throw new PropelException('Cannot insert a value for auto-increment primary key (' . BlogTableMap::COL_ID . ')');
+            throw new PropelException('Cannot insert a value for auto-increment primary key (' . ManufacturerTableMap::COL_ID . ')');
         }
 
          // check the columns in natural order for more readable SQL queries
-        if ($this->isColumnModified(BlogTableMap::COL_ID)) {
+        if ($this->isColumnModified(ManufacturerTableMap::COL_ID)) {
             $modifiedColumns[':p' . $index++]  = 'id';
         }
-        if ($this->isColumnModified(BlogTableMap::COL_TITLE)) {
-            $modifiedColumns[':p' . $index++]  = 'title';
+        if ($this->isColumnModified(ManufacturerTableMap::COL_NAME)) {
+            $modifiedColumns[':p' . $index++]  = 'name';
         }
-        if ($this->isColumnModified(BlogTableMap::COL_TEXT)) {
-            $modifiedColumns[':p' . $index++]  = 'text';
+        if ($this->isColumnModified(ManufacturerTableMap::COL_URL)) {
+            $modifiedColumns[':p' . $index++]  = 'url';
         }
-        if ($this->isColumnModified(BlogTableMap::COL_IMAGE)) {
-            $modifiedColumns[':p' . $index++]  = 'image';
+        if ($this->isColumnModified(ManufacturerTableMap::COL_SHOPS)) {
+            $modifiedColumns[':p' . $index++]  = 'shops';
         }
 
         $sql = sprintf(
-            'INSERT INTO blog (%s) VALUES (%s)',
+            'INSERT INTO manufacturer (%s) VALUES (%s)',
             implode(', ', $modifiedColumns),
             implode(', ', array_keys($modifiedColumns))
         );
@@ -706,14 +799,14 @@ abstract class Blog implements ActiveRecordInterface
                     case 'id':                        
                         $stmt->bindValue($identifier, $this->id, PDO::PARAM_INT);
                         break;
-                    case 'title':                        
-                        $stmt->bindValue($identifier, $this->title, PDO::PARAM_STR);
+                    case 'name':                        
+                        $stmt->bindValue($identifier, $this->name, PDO::PARAM_STR);
                         break;
-                    case 'text':                        
-                        $stmt->bindValue($identifier, $this->text, PDO::PARAM_STR);
+                    case 'url':                        
+                        $stmt->bindValue($identifier, $this->url, PDO::PARAM_STR);
                         break;
-                    case 'image':                        
-                        $stmt->bindValue($identifier, $this->image, PDO::PARAM_STR);
+                    case 'shops':                        
+                        $stmt->bindValue($identifier, $this->shops, PDO::PARAM_STR);
                         break;
                 }
             }
@@ -761,7 +854,7 @@ abstract class Blog implements ActiveRecordInterface
      */
     public function getByName($name, $type = TableMap::TYPE_PHPNAME)
     {
-        $pos = BlogTableMap::translateFieldName($name, $type, TableMap::TYPE_NUM);
+        $pos = ManufacturerTableMap::translateFieldName($name, $type, TableMap::TYPE_NUM);
         $field = $this->getByPosition($pos);
 
         return $field;
@@ -781,13 +874,13 @@ abstract class Blog implements ActiveRecordInterface
                 return $this->getId();
                 break;
             case 1:
-                return $this->getTitle();
+                return $this->getName();
                 break;
             case 2:
-                return $this->getText();
+                return $this->getUrl();
                 break;
             case 3:
-                return $this->getImage();
+                return $this->getShops();
                 break;
             default:
                 return null;
@@ -806,28 +899,46 @@ abstract class Blog implements ActiveRecordInterface
      *                    Defaults to TableMap::TYPE_PHPNAME.
      * @param     boolean $includeLazyLoadColumns (optional) Whether to include lazy loaded columns. Defaults to TRUE.
      * @param     array $alreadyDumpedObjects List of objects to skip to avoid recursion
+     * @param     boolean $includeForeignObjects (optional) Whether to include hydrated related objects. Default to FALSE.
      *
      * @return array an associative array containing the field names (as keys) and field values
      */
-    public function toArray($keyType = TableMap::TYPE_PHPNAME, $includeLazyLoadColumns = true, $alreadyDumpedObjects = array())
+    public function toArray($keyType = TableMap::TYPE_PHPNAME, $includeLazyLoadColumns = true, $alreadyDumpedObjects = array(), $includeForeignObjects = false)
     {
 
-        if (isset($alreadyDumpedObjects['Blog'][$this->hashCode()])) {
+        if (isset($alreadyDumpedObjects['Manufacturer'][$this->hashCode()])) {
             return '*RECURSION*';
         }
-        $alreadyDumpedObjects['Blog'][$this->hashCode()] = true;
-        $keys = BlogTableMap::getFieldNames($keyType);
+        $alreadyDumpedObjects['Manufacturer'][$this->hashCode()] = true;
+        $keys = ManufacturerTableMap::getFieldNames($keyType);
         $result = array(
             $keys[0] => $this->getId(),
-            $keys[1] => $this->getTitle(),
-            $keys[2] => $this->getText(),
-            $keys[3] => $this->getImage(),
+            $keys[1] => $this->getName(),
+            $keys[2] => $this->getUrl(),
+            $keys[3] => $this->getShops(),
         );
         $virtualColumns = $this->virtualColumns;
         foreach ($virtualColumns as $key => $virtualColumn) {
             $result[$key] = $virtualColumn;
         }
         
+        if ($includeForeignObjects) {
+            if (null !== $this->collProducts) {
+                
+                switch ($keyType) {
+                    case TableMap::TYPE_CAMELNAME:
+                        $key = 'products';
+                        break;
+                    case TableMap::TYPE_FIELDNAME:
+                        $key = 'products';
+                        break;
+                    default:
+                        $key = 'Products';
+                }
+        
+                $result[$key] = $this->collProducts->toArray(null, false, $keyType, $includeLazyLoadColumns, $alreadyDumpedObjects);
+            }
+        }
 
         return $result;
     }
@@ -841,11 +952,11 @@ abstract class Blog implements ActiveRecordInterface
      *                one of the class type constants TableMap::TYPE_PHPNAME, TableMap::TYPE_CAMELNAME
      *                TableMap::TYPE_COLNAME, TableMap::TYPE_FIELDNAME, TableMap::TYPE_NUM.
      *                Defaults to TableMap::TYPE_PHPNAME.
-     * @return $this|\UACatalog\Models\Blog
+     * @return $this|\UACatalog\Models\Manufacturer
      */
     public function setByName($name, $value, $type = TableMap::TYPE_PHPNAME)
     {
-        $pos = BlogTableMap::translateFieldName($name, $type, TableMap::TYPE_NUM);
+        $pos = ManufacturerTableMap::translateFieldName($name, $type, TableMap::TYPE_NUM);
 
         return $this->setByPosition($pos, $value);
     }
@@ -856,7 +967,7 @@ abstract class Blog implements ActiveRecordInterface
      *
      * @param  int $pos position in xml schema
      * @param  mixed $value field value
-     * @return $this|\UACatalog\Models\Blog
+     * @return $this|\UACatalog\Models\Manufacturer
      */
     public function setByPosition($pos, $value)
     {
@@ -865,13 +976,17 @@ abstract class Blog implements ActiveRecordInterface
                 $this->setId($value);
                 break;
             case 1:
-                $this->setTitle($value);
+                $this->setName($value);
                 break;
             case 2:
-                $this->setText($value);
+                $this->setUrl($value);
                 break;
             case 3:
-                $this->setImage($value);
+                if (!is_array($value)) {
+                    $v = trim(substr($value, 2, -2));
+                    $value = $v ? explode(' | ', $v) : array();
+                }
+                $this->setShops($value);
                 break;
         } // switch()
 
@@ -897,19 +1012,19 @@ abstract class Blog implements ActiveRecordInterface
      */
     public function fromArray($arr, $keyType = TableMap::TYPE_PHPNAME)
     {
-        $keys = BlogTableMap::getFieldNames($keyType);
+        $keys = ManufacturerTableMap::getFieldNames($keyType);
 
         if (array_key_exists($keys[0], $arr)) {
             $this->setId($arr[$keys[0]]);
         }
         if (array_key_exists($keys[1], $arr)) {
-            $this->setTitle($arr[$keys[1]]);
+            $this->setName($arr[$keys[1]]);
         }
         if (array_key_exists($keys[2], $arr)) {
-            $this->setText($arr[$keys[2]]);
+            $this->setUrl($arr[$keys[2]]);
         }
         if (array_key_exists($keys[3], $arr)) {
-            $this->setImage($arr[$keys[3]]);
+            $this->setShops($arr[$keys[3]]);
         }
     }
 
@@ -930,7 +1045,7 @@ abstract class Blog implements ActiveRecordInterface
      * @param string $data The source data to import from
      * @param string $keyType The type of keys the array uses.
      *
-     * @return $this|\UACatalog\Models\Blog The current object, for fluid interface
+     * @return $this|\UACatalog\Models\Manufacturer The current object, for fluid interface
      */
     public function importFrom($parser, $data, $keyType = TableMap::TYPE_PHPNAME)
     {
@@ -950,19 +1065,19 @@ abstract class Blog implements ActiveRecordInterface
      */
     public function buildCriteria()
     {
-        $criteria = new Criteria(BlogTableMap::DATABASE_NAME);
+        $criteria = new Criteria(ManufacturerTableMap::DATABASE_NAME);
 
-        if ($this->isColumnModified(BlogTableMap::COL_ID)) {
-            $criteria->add(BlogTableMap::COL_ID, $this->id);
+        if ($this->isColumnModified(ManufacturerTableMap::COL_ID)) {
+            $criteria->add(ManufacturerTableMap::COL_ID, $this->id);
         }
-        if ($this->isColumnModified(BlogTableMap::COL_TITLE)) {
-            $criteria->add(BlogTableMap::COL_TITLE, $this->title);
+        if ($this->isColumnModified(ManufacturerTableMap::COL_NAME)) {
+            $criteria->add(ManufacturerTableMap::COL_NAME, $this->name);
         }
-        if ($this->isColumnModified(BlogTableMap::COL_TEXT)) {
-            $criteria->add(BlogTableMap::COL_TEXT, $this->text);
+        if ($this->isColumnModified(ManufacturerTableMap::COL_URL)) {
+            $criteria->add(ManufacturerTableMap::COL_URL, $this->url);
         }
-        if ($this->isColumnModified(BlogTableMap::COL_IMAGE)) {
-            $criteria->add(BlogTableMap::COL_IMAGE, $this->image);
+        if ($this->isColumnModified(ManufacturerTableMap::COL_SHOPS)) {
+            $criteria->add(ManufacturerTableMap::COL_SHOPS, $this->shops);
         }
 
         return $criteria;
@@ -980,8 +1095,8 @@ abstract class Blog implements ActiveRecordInterface
      */
     public function buildPkeyCriteria()
     {
-        $criteria = ChildBlogQuery::create();
-        $criteria->add(BlogTableMap::COL_ID, $this->id);
+        $criteria = ChildManufacturerQuery::create();
+        $criteria->add(ManufacturerTableMap::COL_ID, $this->id);
 
         return $criteria;
     }
@@ -1043,16 +1158,30 @@ abstract class Blog implements ActiveRecordInterface
      * If desired, this method can also make copies of all associated (fkey referrers)
      * objects.
      *
-     * @param      object $copyObj An object of \UACatalog\Models\Blog (or compatible) type.
+     * @param      object $copyObj An object of \UACatalog\Models\Manufacturer (or compatible) type.
      * @param      boolean $deepCopy Whether to also copy all rows that refer (by fkey) to the current row.
      * @param      boolean $makeNew Whether to reset autoincrement PKs and make the object new.
      * @throws PropelException
      */
     public function copyInto($copyObj, $deepCopy = false, $makeNew = true)
     {
-        $copyObj->setTitle($this->getTitle());
-        $copyObj->setText($this->getText());
-        $copyObj->setImage($this->getImage());
+        $copyObj->setName($this->getName());
+        $copyObj->setUrl($this->getUrl());
+        $copyObj->setShops($this->getShops());
+
+        if ($deepCopy) {
+            // important: temporarily setNew(false) because this affects the behavior of
+            // the getter/setter methods for fkey referrer objects.
+            $copyObj->setNew(false);
+
+            foreach ($this->getProducts() as $relObj) {
+                if ($relObj !== $this) {  // ensure that we don't try to copy a reference to ourselves
+                    $copyObj->addProduct($relObj->copy($deepCopy));
+                }
+            }
+
+        } // if ($deepCopy)
+
         if ($makeNew) {
             $copyObj->setNew(true);
             $copyObj->setId(NULL); // this is a auto-increment column, so set to default value
@@ -1068,7 +1197,7 @@ abstract class Blog implements ActiveRecordInterface
      * objects.
      *
      * @param  boolean $deepCopy Whether to also copy all rows that refer (by fkey) to the current row.
-     * @return \UACatalog\Models\Blog Clone of current object.
+     * @return \UACatalog\Models\Manufacturer Clone of current object.
      * @throws PropelException
      */
     public function copy($deepCopy = false)
@@ -1081,6 +1210,265 @@ abstract class Blog implements ActiveRecordInterface
         return $copyObj;
     }
 
+
+    /**
+     * Initializes a collection based on the name of a relation.
+     * Avoids crafting an 'init[$relationName]s' method name
+     * that wouldn't work when StandardEnglishPluralizer is used.
+     *
+     * @param      string $relationName The name of the relation to initialize
+     * @return void
+     */
+    public function initRelation($relationName)
+    {
+        if ('Product' == $relationName) {
+            return $this->initProducts();
+        }
+    }
+
+    /**
+     * Clears out the collProducts collection
+     *
+     * This does not modify the database; however, it will remove any associated objects, causing
+     * them to be refetched by subsequent calls to accessor method.
+     *
+     * @return void
+     * @see        addProducts()
+     */
+    public function clearProducts()
+    {
+        $this->collProducts = null; // important to set this to NULL since that means it is uninitialized
+    }
+
+    /**
+     * Reset is the collProducts collection loaded partially.
+     */
+    public function resetPartialProducts($v = true)
+    {
+        $this->collProductsPartial = $v;
+    }
+
+    /**
+     * Initializes the collProducts collection.
+     *
+     * By default this just sets the collProducts collection to an empty array (like clearcollProducts());
+     * however, you may wish to override this method in your stub class to provide setting appropriate
+     * to your application -- for example, setting the initial array to the values stored in database.
+     *
+     * @param      boolean $overrideExisting If set to true, the method call initializes
+     *                                        the collection even if it is not empty
+     *
+     * @return void
+     */
+    public function initProducts($overrideExisting = true)
+    {
+        if (null !== $this->collProducts && !$overrideExisting) {
+            return;
+        }
+        $this->collProducts = new ObjectCollection();
+        $this->collProducts->setModel('\UACatalog\Models\Product');
+    }
+
+    /**
+     * Gets an array of ChildProduct objects which contain a foreign key that references this object.
+     *
+     * If the $criteria is not null, it is used to always fetch the results from the database.
+     * Otherwise the results are fetched from the database the first time, then cached.
+     * Next time the same method is called without $criteria, the cached collection is returned.
+     * If this ChildManufacturer is new, it will return
+     * an empty collection or the current collection; the criteria is ignored on a new object.
+     *
+     * @param      Criteria $criteria optional Criteria object to narrow the query
+     * @param      ConnectionInterface $con optional connection object
+     * @return ObjectCollection|ChildProduct[] List of ChildProduct objects
+     * @throws PropelException
+     */
+    public function getProducts(Criteria $criteria = null, ConnectionInterface $con = null)
+    {
+        $partial = $this->collProductsPartial && !$this->isNew();
+        if (null === $this->collProducts || null !== $criteria  || $partial) {
+            if ($this->isNew() && null === $this->collProducts) {
+                // return empty collection
+                $this->initProducts();
+            } else {
+                $collProducts = ChildProductQuery::create(null, $criteria)
+                    ->filterByManufacturer($this)
+                    ->find($con);
+
+                if (null !== $criteria) {
+                    if (false !== $this->collProductsPartial && count($collProducts)) {
+                        $this->initProducts(false);
+
+                        foreach ($collProducts as $obj) {
+                            if (false == $this->collProducts->contains($obj)) {
+                                $this->collProducts->append($obj);
+                            }
+                        }
+
+                        $this->collProductsPartial = true;
+                    }
+
+                    return $collProducts;
+                }
+
+                if ($partial && $this->collProducts) {
+                    foreach ($this->collProducts as $obj) {
+                        if ($obj->isNew()) {
+                            $collProducts[] = $obj;
+                        }
+                    }
+                }
+
+                $this->collProducts = $collProducts;
+                $this->collProductsPartial = false;
+            }
+        }
+
+        return $this->collProducts;
+    }
+
+    /**
+     * Sets a collection of ChildProduct objects related by a one-to-many relationship
+     * to the current object.
+     * It will also schedule objects for deletion based on a diff between old objects (aka persisted)
+     * and new objects from the given Propel collection.
+     *
+     * @param      Collection $products A Propel collection.
+     * @param      ConnectionInterface $con Optional connection object
+     * @return $this|ChildManufacturer The current object (for fluent API support)
+     */
+    public function setProducts(Collection $products, ConnectionInterface $con = null)
+    {
+        /** @var ChildProduct[] $productsToDelete */
+        $productsToDelete = $this->getProducts(new Criteria(), $con)->diff($products);
+
+        
+        $this->productsScheduledForDeletion = $productsToDelete;
+
+        foreach ($productsToDelete as $productRemoved) {
+            $productRemoved->setManufacturer(null);
+        }
+
+        $this->collProducts = null;
+        foreach ($products as $product) {
+            $this->addProduct($product);
+        }
+
+        $this->collProducts = $products;
+        $this->collProductsPartial = false;
+
+        return $this;
+    }
+
+    /**
+     * Returns the number of related Product objects.
+     *
+     * @param      Criteria $criteria
+     * @param      boolean $distinct
+     * @param      ConnectionInterface $con
+     * @return int             Count of related Product objects.
+     * @throws PropelException
+     */
+    public function countProducts(Criteria $criteria = null, $distinct = false, ConnectionInterface $con = null)
+    {
+        $partial = $this->collProductsPartial && !$this->isNew();
+        if (null === $this->collProducts || null !== $criteria || $partial) {
+            if ($this->isNew() && null === $this->collProducts) {
+                return 0;
+            }
+
+            if ($partial && !$criteria) {
+                return count($this->getProducts());
+            }
+
+            $query = ChildProductQuery::create(null, $criteria);
+            if ($distinct) {
+                $query->distinct();
+            }
+
+            return $query
+                ->filterByManufacturer($this)
+                ->count($con);
+        }
+
+        return count($this->collProducts);
+    }
+
+    /**
+     * Method called to associate a ChildProduct object to this object
+     * through the ChildProduct foreign key attribute.
+     *
+     * @param  ChildProduct $l ChildProduct
+     * @return $this|\UACatalog\Models\Manufacturer The current object (for fluent API support)
+     */
+    public function addProduct(ChildProduct $l)
+    {
+        if ($this->collProducts === null) {
+            $this->initProducts();
+            $this->collProductsPartial = true;
+        }
+
+        if (!$this->collProducts->contains($l)) {
+            $this->doAddProduct($l);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param ChildProduct $product The ChildProduct object to add.
+     */
+    protected function doAddProduct(ChildProduct $product)
+    {
+        $this->collProducts[]= $product;
+        $product->setManufacturer($this);
+    }
+
+    /**
+     * @param  ChildProduct $product The ChildProduct object to remove.
+     * @return $this|ChildManufacturer The current object (for fluent API support)
+     */
+    public function removeProduct(ChildProduct $product)
+    {
+        if ($this->getProducts()->contains($product)) {
+            $pos = $this->collProducts->search($product);
+            $this->collProducts->remove($pos);
+            if (null === $this->productsScheduledForDeletion) {
+                $this->productsScheduledForDeletion = clone $this->collProducts;
+                $this->productsScheduledForDeletion->clear();
+            }
+            $this->productsScheduledForDeletion[]= clone $product;
+            $product->setManufacturer(null);
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * If this collection has already been initialized with
+     * an identical criteria, it returns the collection.
+     * Otherwise if this Manufacturer is new, it will return
+     * an empty collection; or if this Manufacturer has previously
+     * been saved, it will retrieve related Products from storage.
+     *
+     * This method is protected by default in order to keep the public
+     * api reasonable.  You can provide public methods for those you
+     * actually need in Manufacturer.
+     *
+     * @param      Criteria $criteria optional Criteria object to narrow the query
+     * @param      ConnectionInterface $con optional connection object
+     * @param      string $joinBehavior optional join type to use (defaults to Criteria::LEFT_JOIN)
+     * @return ObjectCollection|ChildProduct[] List of ChildProduct objects
+     */
+    public function getProductsJoinCategory(Criteria $criteria = null, ConnectionInterface $con = null, $joinBehavior = Criteria::LEFT_JOIN)
+    {
+        $query = ChildProductQuery::create(null, $criteria);
+        $query->joinWith('Category', $joinBehavior);
+
+        return $this->getProducts($query, $con);
+    }
+
     /**
      * Clears the current object, sets all attributes to their default values and removes
      * outgoing references as well as back-references (from other objects to this one. Results probably in a database
@@ -1089,9 +1477,10 @@ abstract class Blog implements ActiveRecordInterface
     public function clear()
     {
         $this->id = null;
-        $this->title = null;
-        $this->text = null;
-        $this->image = null;
+        $this->name = null;
+        $this->url = null;
+        $this->shops = null;
+        $this->shops_unserialized = null;
         $this->alreadyInSave = false;
         $this->clearAllReferences();
         $this->resetModified();
@@ -1110,8 +1499,14 @@ abstract class Blog implements ActiveRecordInterface
     public function clearAllReferences($deep = false)
     {
         if ($deep) {
+            if ($this->collProducts) {
+                foreach ($this->collProducts as $o) {
+                    $o->clearAllReferences($deep);
+                }
+            }
         } // if ($deep)
 
+        $this->collProducts = null;
     }
 
     /**
@@ -1121,7 +1516,7 @@ abstract class Blog implements ActiveRecordInterface
      */
     public function __toString()
     {
-        return (string) $this->exportTo(BlogTableMap::DEFAULT_STRING_FORMAT);
+        return (string) $this->exportTo(ManufacturerTableMap::DEFAULT_STRING_FORMAT);
     }
 
     /**

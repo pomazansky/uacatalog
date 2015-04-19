@@ -11,12 +11,12 @@ use Propel\Runtime\Exception\PropelException;
 use Propel\Runtime\Map\RelationMap;
 use Propel\Runtime\Map\TableMap;
 use Propel\Runtime\Map\TableMapTrait;
-use UACatalog\Models\Blog;
-use UACatalog\Models\BlogQuery;
+use UACatalog\Models\Category;
+use UACatalog\Models\CategoryQuery;
 
 
 /**
- * This class defines the structure of the 'blog' table.
+ * This class defines the structure of the 'category' table.
  *
  *
  *
@@ -26,7 +26,7 @@ use UACatalog\Models\BlogQuery;
  * (i.e. if it's a text column type).
  *
  */
-class BlogTableMap extends TableMap
+class CategoryTableMap extends TableMap
 {
     use InstancePoolTrait;
     use TableMapTrait;
@@ -34,7 +34,7 @@ class BlogTableMap extends TableMap
     /**
      * The (dot-path) name of this class
      */
-    const CLASS_NAME = 'UACatalog.Models.Map.BlogTableMap';
+    const CLASS_NAME = 'UACatalog.Models.Map.CategoryTableMap';
 
     /**
      * The default database name for this class
@@ -44,22 +44,22 @@ class BlogTableMap extends TableMap
     /**
      * The table name for this class
      */
-    const TABLE_NAME = 'blog';
+    const TABLE_NAME = 'category';
 
     /**
      * The related Propel class for this table
      */
-    const OM_CLASS = '\\UACatalog\\Models\\Blog';
+    const OM_CLASS = '\\UACatalog\\Models\\Category';
 
     /**
      * A class that can be returned by this tableMap
      */
-    const CLASS_DEFAULT = 'UACatalog.Models.Blog';
+    const CLASS_DEFAULT = 'UACatalog.Models.Category';
 
     /**
      * The total number of columns
      */
-    const NUM_COLUMNS = 4;
+    const NUM_COLUMNS = 3;
 
     /**
      * The number of lazy-loaded columns
@@ -69,27 +69,22 @@ class BlogTableMap extends TableMap
     /**
      * The number of columns to hydrate (NUM_COLUMNS - NUM_LAZY_LOAD_COLUMNS)
      */
-    const NUM_HYDRATE_COLUMNS = 4;
+    const NUM_HYDRATE_COLUMNS = 3;
 
     /**
      * the column name for the id field
      */
-    const COL_ID = 'blog.id';
+    const COL_ID = 'category.id';
 
     /**
-     * the column name for the title field
+     * the column name for the name field
      */
-    const COL_TITLE = 'blog.title';
+    const COL_NAME = 'category.name';
 
     /**
-     * the column name for the text field
+     * the column name for the parent_id field
      */
-    const COL_TEXT = 'blog.text';
-
-    /**
-     * the column name for the image field
-     */
-    const COL_IMAGE = 'blog.image';
+    const COL_PARENT_ID = 'category.parent_id';
 
     /**
      * The default string format for model objects of the related table
@@ -103,11 +98,11 @@ class BlogTableMap extends TableMap
      * e.g. self::$fieldNames[self::TYPE_PHPNAME][0] = 'Id'
      */
     protected static $fieldNames = array (
-        self::TYPE_PHPNAME       => array('Id', 'Title', 'Text', 'Image', ),
-        self::TYPE_CAMELNAME     => array('id', 'title', 'text', 'image', ),
-        self::TYPE_COLNAME       => array(BlogTableMap::COL_ID, BlogTableMap::COL_TITLE, BlogTableMap::COL_TEXT, BlogTableMap::COL_IMAGE, ),
-        self::TYPE_FIELDNAME     => array('id', 'title', 'text', 'image', ),
-        self::TYPE_NUM           => array(0, 1, 2, 3, )
+        self::TYPE_PHPNAME       => array('Id', 'Name', 'ParentId', ),
+        self::TYPE_CAMELNAME     => array('id', 'name', 'parentId', ),
+        self::TYPE_COLNAME       => array(CategoryTableMap::COL_ID, CategoryTableMap::COL_NAME, CategoryTableMap::COL_PARENT_ID, ),
+        self::TYPE_FIELDNAME     => array('id', 'name', 'parent_id', ),
+        self::TYPE_NUM           => array(0, 1, 2, )
     );
 
     /**
@@ -117,11 +112,11 @@ class BlogTableMap extends TableMap
      * e.g. self::$fieldKeys[self::TYPE_PHPNAME]['Id'] = 0
      */
     protected static $fieldKeys = array (
-        self::TYPE_PHPNAME       => array('Id' => 0, 'Title' => 1, 'Text' => 2, 'Image' => 3, ),
-        self::TYPE_CAMELNAME     => array('id' => 0, 'title' => 1, 'text' => 2, 'image' => 3, ),
-        self::TYPE_COLNAME       => array(BlogTableMap::COL_ID => 0, BlogTableMap::COL_TITLE => 1, BlogTableMap::COL_TEXT => 2, BlogTableMap::COL_IMAGE => 3, ),
-        self::TYPE_FIELDNAME     => array('id' => 0, 'title' => 1, 'text' => 2, 'image' => 3, ),
-        self::TYPE_NUM           => array(0, 1, 2, 3, )
+        self::TYPE_PHPNAME       => array('Id' => 0, 'Name' => 1, 'ParentId' => 2, ),
+        self::TYPE_CAMELNAME     => array('id' => 0, 'name' => 1, 'parentId' => 2, ),
+        self::TYPE_COLNAME       => array(CategoryTableMap::COL_ID => 0, CategoryTableMap::COL_NAME => 1, CategoryTableMap::COL_PARENT_ID => 2, ),
+        self::TYPE_FIELDNAME     => array('id' => 0, 'name' => 1, 'parent_id' => 2, ),
+        self::TYPE_NUM           => array(0, 1, 2, )
     );
 
     /**
@@ -134,17 +129,16 @@ class BlogTableMap extends TableMap
     public function initialize()
     {
         // attributes
-        $this->setName('blog');
-        $this->setPhpName('Blog');
+        $this->setName('category');
+        $this->setPhpName('Category');
         $this->setIdentifierQuoting(false);
-        $this->setClassName('\\UACatalog\\Models\\Blog');
+        $this->setClassName('\\UACatalog\\Models\\Category');
         $this->setPackage('UACatalog.Models');
         $this->setUseIdGenerator(true);
         // columns
         $this->addPrimaryKey('id', 'Id', 'INTEGER', true, null, null);
-        $this->addColumn('title', 'Title', 'VARCHAR', true, 255, null);
-        $this->addColumn('text', 'Text', 'LONGVARCHAR', true, null, null);
-        $this->addColumn('image', 'Image', 'VARCHAR', true, 255, null);
+        $this->addColumn('name', 'Name', 'VARCHAR', true, 255, null);
+        $this->addColumn('parent_id', 'ParentId', 'INTEGER', false, null, null);
     } // initialize()
 
     /**
@@ -152,6 +146,13 @@ class BlogTableMap extends TableMap
      */
     public function buildRelations()
     {
+        $this->addRelation('Product', '\\UACatalog\\Models\\Product', RelationMap::ONE_TO_MANY, array (
+  0 =>
+  array (
+    0 => ':category_id',
+    1 => ':id',
+  ),
+), null, null, 'Products', false);
     } // buildRelations()
 
     /**
@@ -211,7 +212,7 @@ class BlogTableMap extends TableMap
      */
     public static function getOMClass($withPrefix = true)
     {
-        return $withPrefix ? BlogTableMap::CLASS_DEFAULT : BlogTableMap::OM_CLASS;
+        return $withPrefix ? CategoryTableMap::CLASS_DEFAULT : CategoryTableMap::OM_CLASS;
     }
 
     /**
@@ -225,22 +226,22 @@ class BlogTableMap extends TableMap
      *
      * @throws PropelException Any exceptions caught during processing will be
      *                         rethrown wrapped into a PropelException.
-     * @return array           (Blog object, last column rank)
+     * @return array           (Category object, last column rank)
      */
     public static function populateObject($row, $offset = 0, $indexType = TableMap::TYPE_NUM)
     {
-        $key = BlogTableMap::getPrimaryKeyHashFromRow($row, $offset, $indexType);
-        if (null !== ($obj = BlogTableMap::getInstanceFromPool($key))) {
+        $key = CategoryTableMap::getPrimaryKeyHashFromRow($row, $offset, $indexType);
+        if (null !== ($obj = CategoryTableMap::getInstanceFromPool($key))) {
             // We no longer rehydrate the object, since this can cause data loss.
             // See http://www.propelorm.org/ticket/509
             // $obj->hydrate($row, $offset, true); // rehydrate
-            $col = $offset + BlogTableMap::NUM_HYDRATE_COLUMNS;
+            $col = $offset + CategoryTableMap::NUM_HYDRATE_COLUMNS;
         } else {
-            $cls = BlogTableMap::OM_CLASS;
-            /** @var Blog $obj */
+            $cls = CategoryTableMap::OM_CLASS;
+            /** @var Category $obj */
             $obj = new $cls();
             $col = $obj->hydrate($row, $offset, false, $indexType);
-            BlogTableMap::addInstanceToPool($obj, $key);
+            CategoryTableMap::addInstanceToPool($obj, $key);
         }
 
         return array($obj, $col);
@@ -263,18 +264,18 @@ class BlogTableMap extends TableMap
         $cls = static::getOMClass(false);
         // populate the object(s)
         while ($row = $dataFetcher->fetch()) {
-            $key = BlogTableMap::getPrimaryKeyHashFromRow($row, 0, $dataFetcher->getIndexType());
-            if (null !== ($obj = BlogTableMap::getInstanceFromPool($key))) {
+            $key = CategoryTableMap::getPrimaryKeyHashFromRow($row, 0, $dataFetcher->getIndexType());
+            if (null !== ($obj = CategoryTableMap::getInstanceFromPool($key))) {
                 // We no longer rehydrate the object, since this can cause data loss.
                 // See http://www.propelorm.org/ticket/509
                 // $obj->hydrate($row, 0, true); // rehydrate
                 $results[] = $obj;
             } else {
-                /** @var Blog $obj */
+                /** @var Category $obj */
                 $obj = new $cls();
                 $obj->hydrate($row);
                 $results[] = $obj;
-                BlogTableMap::addInstanceToPool($obj, $key);
+                CategoryTableMap::addInstanceToPool($obj, $key);
             } // if key exists
         }
 
@@ -295,15 +296,13 @@ class BlogTableMap extends TableMap
     public static function addSelectColumns(Criteria $criteria, $alias = null)
     {
         if (null === $alias) {
-            $criteria->addSelectColumn(BlogTableMap::COL_ID);
-            $criteria->addSelectColumn(BlogTableMap::COL_TITLE);
-            $criteria->addSelectColumn(BlogTableMap::COL_TEXT);
-            $criteria->addSelectColumn(BlogTableMap::COL_IMAGE);
+            $criteria->addSelectColumn(CategoryTableMap::COL_ID);
+            $criteria->addSelectColumn(CategoryTableMap::COL_NAME);
+            $criteria->addSelectColumn(CategoryTableMap::COL_PARENT_ID);
         } else {
             $criteria->addSelectColumn($alias . '.id');
-            $criteria->addSelectColumn($alias . '.title');
-            $criteria->addSelectColumn($alias . '.text');
-            $criteria->addSelectColumn($alias . '.image');
+            $criteria->addSelectColumn($alias . '.name');
+            $criteria->addSelectColumn($alias . '.parent_id');
         }
     }
 
@@ -316,7 +315,7 @@ class BlogTableMap extends TableMap
      */
     public static function getTableMap()
     {
-        return Propel::getServiceContainer()->getDatabaseMap(BlogTableMap::DATABASE_NAME)->getTable(BlogTableMap::TABLE_NAME);
+        return Propel::getServiceContainer()->getDatabaseMap(CategoryTableMap::DATABASE_NAME)->getTable(CategoryTableMap::TABLE_NAME);
     }
 
     /**
@@ -324,16 +323,16 @@ class BlogTableMap extends TableMap
      */
     public static function buildTableMap()
     {
-        $dbMap = Propel::getServiceContainer()->getDatabaseMap(BlogTableMap::DATABASE_NAME);
-        if (!$dbMap->hasTable(BlogTableMap::TABLE_NAME)) {
-            $dbMap->addTableObject(new BlogTableMap());
+        $dbMap = Propel::getServiceContainer()->getDatabaseMap(CategoryTableMap::DATABASE_NAME);
+        if (!$dbMap->hasTable(CategoryTableMap::TABLE_NAME)) {
+            $dbMap->addTableObject(new CategoryTableMap());
         }
     }
 
     /**
-     * Performs a DELETE on the database, given a Blog or Criteria object OR a primary key value.
+     * Performs a DELETE on the database, given a Category or Criteria object OR a primary key value.
      *
-     * @param mixed               $values Criteria or Blog object or primary key or array of primary keys
+     * @param mixed               $values Criteria or Category object or primary key or array of primary keys
      *              which is used to create the DELETE statement
      * @param  ConnectionInterface $con the connection to use
      * @return int             The number of affected rows (if supported by underlying database driver).  This includes CASCADE-related rows
@@ -344,27 +343,27 @@ class BlogTableMap extends TableMap
      public static function doDelete($values, ConnectionInterface $con = null)
      {
         if (null === $con) {
-            $con = Propel::getServiceContainer()->getWriteConnection(BlogTableMap::DATABASE_NAME);
+            $con = Propel::getServiceContainer()->getWriteConnection(CategoryTableMap::DATABASE_NAME);
         }
 
         if ($values instanceof Criteria) {
             // rename for clarity
             $criteria = $values;
-        } elseif ($values instanceof \UACatalog\Models\Blog) { // it's a model object
+        } elseif ($values instanceof \UACatalog\Models\Category) { // it's a model object
             // create criteria based on pk values
             $criteria = $values->buildPkeyCriteria();
         } else { // it's a primary key, or an array of pks
-            $criteria = new Criteria(BlogTableMap::DATABASE_NAME);
-            $criteria->add(BlogTableMap::COL_ID, (array) $values, Criteria::IN);
+            $criteria = new Criteria(CategoryTableMap::DATABASE_NAME);
+            $criteria->add(CategoryTableMap::COL_ID, (array) $values, Criteria::IN);
         }
 
-        $query = BlogQuery::create()->mergeWith($criteria);
+        $query = CategoryQuery::create()->mergeWith($criteria);
 
         if ($values instanceof Criteria) {
-            BlogTableMap::clearInstancePool();
+            CategoryTableMap::clearInstancePool();
         } elseif (!is_object($values)) { // it's a primary key, or an array of pks
             foreach ((array) $values as $singleval) {
-                BlogTableMap::removeInstanceFromPool($singleval);
+                CategoryTableMap::removeInstanceFromPool($singleval);
             }
         }
 
@@ -372,20 +371,20 @@ class BlogTableMap extends TableMap
     }
 
     /**
-     * Deletes all rows from the blog table.
+     * Deletes all rows from the category table.
      *
      * @param ConnectionInterface $con the connection to use
      * @return int The number of affected rows (if supported by underlying database driver).
      */
     public static function doDeleteAll(ConnectionInterface $con = null)
     {
-        return BlogQuery::create()->doDeleteAll($con);
+        return CategoryQuery::create()->doDeleteAll($con);
     }
 
     /**
-     * Performs an INSERT on the database, given a Blog or Criteria object.
+     * Performs an INSERT on the database, given a Category or Criteria object.
      *
-     * @param mixed               $criteria Criteria or Blog object containing data that is used to create the INSERT statement.
+     * @param mixed               $criteria Criteria or Category object containing data that is used to create the INSERT statement.
      * @param ConnectionInterface $con the ConnectionInterface connection to use
      * @return mixed           The new primary key.
      * @throws PropelException Any exceptions caught during processing will be
@@ -394,22 +393,22 @@ class BlogTableMap extends TableMap
     public static function doInsert($criteria, ConnectionInterface $con = null)
     {
         if (null === $con) {
-            $con = Propel::getServiceContainer()->getWriteConnection(BlogTableMap::DATABASE_NAME);
+            $con = Propel::getServiceContainer()->getWriteConnection(CategoryTableMap::DATABASE_NAME);
         }
 
         if ($criteria instanceof Criteria) {
             $criteria = clone $criteria; // rename for clarity
         } else {
-            $criteria = $criteria->buildCriteria(); // build Criteria from Blog object
+            $criteria = $criteria->buildCriteria(); // build Criteria from Category object
         }
 
-        if ($criteria->containsKey(BlogTableMap::COL_ID) && $criteria->keyContainsValue(BlogTableMap::COL_ID) ) {
-            throw new PropelException('Cannot insert a value for auto-increment primary key ('.BlogTableMap::COL_ID.')');
+        if ($criteria->containsKey(CategoryTableMap::COL_ID) && $criteria->keyContainsValue(CategoryTableMap::COL_ID) ) {
+            throw new PropelException('Cannot insert a value for auto-increment primary key ('.CategoryTableMap::COL_ID.')');
         }
 
 
         // Set the correct dbName
-        $query = BlogQuery::create()->mergeWith($criteria);
+        $query = CategoryQuery::create()->mergeWith($criteria);
 
         // use transaction because $criteria could contain info
         // for more than one table (I guess, conceivably)
@@ -418,7 +417,7 @@ class BlogTableMap extends TableMap
         });
     }
 
-} // BlogTableMap
+} // CategoryTableMap
 // This is the static code needed to register the TableMap for this table with the main Propel class.
 //
-BlogTableMap::buildTableMap();
+CategoryTableMap::buildTableMap();

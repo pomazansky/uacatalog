@@ -94,6 +94,12 @@ abstract class Product implements ActiveRecordInterface
     protected $description;
 
     /**
+     * The value for the image field.
+     * @var        string
+     */
+    protected $image;
+
+    /**
      * The value for the category_id field.
      * @var        int
      */
@@ -409,6 +415,16 @@ abstract class Product implements ActiveRecordInterface
     }
 
     /**
+     * Get the [image] column value.
+     * 
+     * @return string
+     */
+    public function getImage()
+    {
+        return $this->image;
+    }
+
+    /**
      * Get the [category_id] column value.
      * 
      * @return int
@@ -509,6 +525,26 @@ abstract class Product implements ActiveRecordInterface
     } // setDescription()
 
     /**
+     * Set the value of [image] column.
+     * 
+     * @param string $v new value
+     * @return $this|\UACatalog\Models\Product The current object (for fluent API support)
+     */
+    public function setImage($v)
+    {
+        if ($v !== null) {
+            $v = (string) $v;
+        }
+
+        if ($this->image !== $v) {
+            $this->image = $v;
+            $this->modifiedColumns[ProductTableMap::COL_IMAGE] = true;
+        }
+
+        return $this;
+    } // setImage()
+
+    /**
      * Set the value of [category_id] column.
      * 
      * @param int $v new value
@@ -604,10 +640,13 @@ abstract class Product implements ActiveRecordInterface
             $col = $row[TableMap::TYPE_NUM == $indexType ? 3 + $startcol : ProductTableMap::translateFieldName('Description', TableMap::TYPE_PHPNAME, $indexType)];
             $this->description = (null !== $col) ? (string) $col : null;
 
-            $col = $row[TableMap::TYPE_NUM == $indexType ? 4 + $startcol : ProductTableMap::translateFieldName('CategoryId', TableMap::TYPE_PHPNAME, $indexType)];
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 4 + $startcol : ProductTableMap::translateFieldName('Image', TableMap::TYPE_PHPNAME, $indexType)];
+            $this->image = (null !== $col) ? (string) $col : null;
+
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 5 + $startcol : ProductTableMap::translateFieldName('CategoryId', TableMap::TYPE_PHPNAME, $indexType)];
             $this->category_id = (null !== $col) ? (int) $col : null;
 
-            $col = $row[TableMap::TYPE_NUM == $indexType ? 5 + $startcol : ProductTableMap::translateFieldName('ManufacturerId', TableMap::TYPE_PHPNAME, $indexType)];
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 6 + $startcol : ProductTableMap::translateFieldName('ManufacturerId', TableMap::TYPE_PHPNAME, $indexType)];
             $this->manufacturer_id = (null !== $col) ? (int) $col : null;
             $this->resetModified();
 
@@ -617,7 +656,7 @@ abstract class Product implements ActiveRecordInterface
                 $this->ensureConsistency();
             }
 
-            return $startcol + 6; // 6 = ProductTableMap::NUM_HYDRATE_COLUMNS.
+            return $startcol + 7; // 7 = ProductTableMap::NUM_HYDRATE_COLUMNS.
 
         } catch (Exception $e) {
             throw new PropelException(sprintf('Error populating %s object', '\\UACatalog\\Models\\Product'), 0, $e);
@@ -902,6 +941,9 @@ abstract class Product implements ActiveRecordInterface
         if ($this->isColumnModified(ProductTableMap::COL_DESCRIPTION)) {
             $modifiedColumns[':p' . $index++]  = 'description';
         }
+        if ($this->isColumnModified(ProductTableMap::COL_IMAGE)) {
+            $modifiedColumns[':p' . $index++]  = 'image';
+        }
         if ($this->isColumnModified(ProductTableMap::COL_CATEGORY_ID)) {
             $modifiedColumns[':p' . $index++]  = 'category_id';
         }
@@ -930,6 +972,9 @@ abstract class Product implements ActiveRecordInterface
                         break;
                     case 'description':                        
                         $stmt->bindValue($identifier, $this->description, PDO::PARAM_STR);
+                        break;
+                    case 'image':                        
+                        $stmt->bindValue($identifier, $this->image, PDO::PARAM_STR);
                         break;
                     case 'category_id':                        
                         $stmt->bindValue($identifier, $this->category_id, PDO::PARAM_INT);
@@ -1012,9 +1057,12 @@ abstract class Product implements ActiveRecordInterface
                 return $this->getDescription();
                 break;
             case 4:
-                return $this->getCategoryId();
+                return $this->getImage();
                 break;
             case 5:
+                return $this->getCategoryId();
+                break;
+            case 6:
                 return $this->getManufacturerId();
                 break;
             default:
@@ -1051,8 +1099,9 @@ abstract class Product implements ActiveRecordInterface
             $keys[1] => $this->getName(),
             $keys[2] => $this->getPrice(),
             $keys[3] => $this->getDescription(),
-            $keys[4] => $this->getCategoryId(),
-            $keys[5] => $this->getManufacturerId(),
+            $keys[4] => $this->getImage(),
+            $keys[5] => $this->getCategoryId(),
+            $keys[6] => $this->getManufacturerId(),
         );
         $virtualColumns = $this->virtualColumns;
         foreach ($virtualColumns as $key => $virtualColumn) {
@@ -1152,9 +1201,12 @@ abstract class Product implements ActiveRecordInterface
                 $this->setDescription($value);
                 break;
             case 4:
-                $this->setCategoryId($value);
+                $this->setImage($value);
                 break;
             case 5:
+                $this->setCategoryId($value);
+                break;
+            case 6:
                 $this->setManufacturerId($value);
                 break;
         } // switch()
@@ -1196,10 +1248,13 @@ abstract class Product implements ActiveRecordInterface
             $this->setDescription($arr[$keys[3]]);
         }
         if (array_key_exists($keys[4], $arr)) {
-            $this->setCategoryId($arr[$keys[4]]);
+            $this->setImage($arr[$keys[4]]);
         }
         if (array_key_exists($keys[5], $arr)) {
-            $this->setManufacturerId($arr[$keys[5]]);
+            $this->setCategoryId($arr[$keys[5]]);
+        }
+        if (array_key_exists($keys[6], $arr)) {
+            $this->setManufacturerId($arr[$keys[6]]);
         }
     }
 
@@ -1253,6 +1308,9 @@ abstract class Product implements ActiveRecordInterface
         }
         if ($this->isColumnModified(ProductTableMap::COL_DESCRIPTION)) {
             $criteria->add(ProductTableMap::COL_DESCRIPTION, $this->description);
+        }
+        if ($this->isColumnModified(ProductTableMap::COL_IMAGE)) {
+            $criteria->add(ProductTableMap::COL_IMAGE, $this->image);
         }
         if ($this->isColumnModified(ProductTableMap::COL_CATEGORY_ID)) {
             $criteria->add(ProductTableMap::COL_CATEGORY_ID, $this->category_id);
@@ -1349,6 +1407,7 @@ abstract class Product implements ActiveRecordInterface
         $copyObj->setName($this->getName());
         $copyObj->setPrice($this->getPrice());
         $copyObj->setDescription($this->getDescription());
+        $copyObj->setImage($this->getImage());
         $copyObj->setCategoryId($this->getCategoryId());
         $copyObj->setManufacturerId($this->getManufacturerId());
 
@@ -2016,6 +2075,7 @@ abstract class Product implements ActiveRecordInterface
         $this->name = null;
         $this->price = null;
         $this->description = null;
+        $this->image = null;
         $this->category_id = null;
         $this->manufacturer_id = null;
         $this->alreadyInSave = false;

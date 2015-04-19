@@ -24,6 +24,7 @@ use UACatalog\Models\Map\ProductTableMap;
  * @method     ChildProductQuery orderByName($order = Criteria::ASC) Order by the name column
  * @method     ChildProductQuery orderByPrice($order = Criteria::ASC) Order by the price column
  * @method     ChildProductQuery orderByDescription($order = Criteria::ASC) Order by the description column
+ * @method     ChildProductQuery orderByImage($order = Criteria::ASC) Order by the image column
  * @method     ChildProductQuery orderByCategoryId($order = Criteria::ASC) Order by the category_id column
  * @method     ChildProductQuery orderByManufacturerId($order = Criteria::ASC) Order by the manufacturer_id column
  *
@@ -31,6 +32,7 @@ use UACatalog\Models\Map\ProductTableMap;
  * @method     ChildProductQuery groupByName() Group by the name column
  * @method     ChildProductQuery groupByPrice() Group by the price column
  * @method     ChildProductQuery groupByDescription() Group by the description column
+ * @method     ChildProductQuery groupByImage() Group by the image column
  * @method     ChildProductQuery groupByCategoryId() Group by the category_id column
  * @method     ChildProductQuery groupByManufacturerId() Group by the manufacturer_id column
  *
@@ -59,6 +61,7 @@ use UACatalog\Models\Map\ProductTableMap;
  * @method     ChildProduct findOneByName(string $name) Return the first ChildProduct filtered by the name column
  * @method     ChildProduct findOneByPrice(double $price) Return the first ChildProduct filtered by the price column
  * @method     ChildProduct findOneByDescription(string $description) Return the first ChildProduct filtered by the description column
+ * @method     ChildProduct findOneByImage(string $image) Return the first ChildProduct filtered by the image column
  * @method     ChildProduct findOneByCategoryId(int $category_id) Return the first ChildProduct filtered by the category_id column
  * @method     ChildProduct findOneByManufacturerId(int $manufacturer_id) Return the first ChildProduct filtered by the manufacturer_id column *
 
@@ -69,6 +72,7 @@ use UACatalog\Models\Map\ProductTableMap;
  * @method     ChildProduct requireOneByName(string $name) Return the first ChildProduct filtered by the name column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  * @method     ChildProduct requireOneByPrice(double $price) Return the first ChildProduct filtered by the price column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  * @method     ChildProduct requireOneByDescription(string $description) Return the first ChildProduct filtered by the description column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
+ * @method     ChildProduct requireOneByImage(string $image) Return the first ChildProduct filtered by the image column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  * @method     ChildProduct requireOneByCategoryId(int $category_id) Return the first ChildProduct filtered by the category_id column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  * @method     ChildProduct requireOneByManufacturerId(int $manufacturer_id) Return the first ChildProduct filtered by the manufacturer_id column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  *
@@ -77,6 +81,7 @@ use UACatalog\Models\Map\ProductTableMap;
  * @method     ChildProduct[]|ObjectCollection findByName(string $name) Return ChildProduct objects filtered by the name column
  * @method     ChildProduct[]|ObjectCollection findByPrice(double $price) Return ChildProduct objects filtered by the price column
  * @method     ChildProduct[]|ObjectCollection findByDescription(string $description) Return ChildProduct objects filtered by the description column
+ * @method     ChildProduct[]|ObjectCollection findByImage(string $image) Return ChildProduct objects filtered by the image column
  * @method     ChildProduct[]|ObjectCollection findByCategoryId(int $category_id) Return ChildProduct objects filtered by the category_id column
  * @method     ChildProduct[]|ObjectCollection findByManufacturerId(int $manufacturer_id) Return ChildProduct objects filtered by the manufacturer_id column
  * @method     ChildProduct[]|\Propel\Runtime\Util\PropelModelPager paginate($page = 1, $maxPerPage = 10, ConnectionInterface $con = null) Issue a SELECT query based on the current ModelCriteria and uses a page and a maximum number of results per page to compute an offset and a limit
@@ -171,7 +176,7 @@ abstract class ProductQuery extends ModelCriteria
      */
     protected function findPkSimple($key, ConnectionInterface $con)
     {
-        $sql = 'SELECT id, name, price, description, category_id, manufacturer_id FROM product WHERE id = :p0';
+        $sql = 'SELECT id, name, price, description, image, category_id, manufacturer_id FROM product WHERE id = :p0';
         try {
             $stmt = $con->prepare($sql);            
             $stmt->bindValue(':p0', $key, PDO::PARAM_INT);
@@ -399,6 +404,35 @@ abstract class ProductQuery extends ModelCriteria
         }
 
         return $this->addUsingAlias(ProductTableMap::COL_DESCRIPTION, $description, $comparison);
+    }
+
+    /**
+     * Filter the query on the image column
+     *
+     * Example usage:
+     * <code>
+     * $query->filterByImage('fooValue');   // WHERE image = 'fooValue'
+     * $query->filterByImage('%fooValue%'); // WHERE image LIKE '%fooValue%'
+     * </code>
+     *
+     * @param     string $image The value to use as filter.
+     *              Accepts wildcards (* and % trigger a LIKE)
+     * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
+     *
+     * @return $this|ChildProductQuery The current query, for fluid interface
+     */
+    public function filterByImage($image = null, $comparison = null)
+    {
+        if (null === $comparison) {
+            if (is_array($image)) {
+                $comparison = Criteria::IN;
+            } elseif (preg_match('/[\%\*]/', $image)) {
+                $image = str_replace('*', '%', $image);
+                $comparison = Criteria::LIKE;
+            }
+        }
+
+        return $this->addUsingAlias(ProductTableMap::COL_IMAGE, $image, $comparison);
     }
 
     /**

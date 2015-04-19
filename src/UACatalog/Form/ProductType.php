@@ -33,6 +33,7 @@ class ProductType extends AbstractType
      */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
+        $image = is_a($this->product, 'UACatalog\Models\Blog') ? $this->product->getImage() : '';
         $builder
             ->add('name', 'text', [
                 'constraints' => new Assert\NotBlank(),
@@ -50,16 +51,16 @@ class ProductType extends AbstractType
                     'rows' => '7',
                     'class' => 'u-full-width ckeditor'
                 ]
-            ]);
-//            ->add('images', 'file', [
-////                'constraints' => new Assert\Image(),
-//                'required' => false,
-//                'label' => 'Image',
-//                'data_class' => null,
-//                'attr' => [
-//                    'accept' => 'image/*'
-//                ]
-//            ]);
+            ])
+        ->add($builder->create('image', 'file', [
+//                'constraints' => new Assert\Image(),
+            'required' => false,
+            'label' => 'Image',
+            'data_class' => null,
+            'attr' => [
+                'accept' => 'image/*'
+            ]
+        ])->addModelTransformer(new UploadedImageTransformer($image)));
 
         $builder->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) {
             $form = $event->getForm();

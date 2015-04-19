@@ -16,7 +16,7 @@
         <column name="name" type="varchar" size="255" required="true"/>
         <column name="price" type="real" required="true"/>
         <column name="description" type="longvarchar" required="true"/>
-        <!--<column name="images" type="array"/>-->
+        <column name="image" type="varchar" size="255" required="true"/>
         <column name="category_id" type="integer" required="true"/>
         <column name="manufacturer_id" type="integer" required="true"/>
 

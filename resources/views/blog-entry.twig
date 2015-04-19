@@ -1,9 +1,9 @@
 {% include 'head.twig' %}
 {% include 'header.twig' %}
 <div class="blog-entry">
-    <img src="{{ app.request.basepath }}/img/blog_item_1.jpg" alt="{{ title }}">
-    <div class="text-head">{{ title }}</div>
-    <p class="text">{{ content }}</div>
+    <img src="{{ app.request.basepath }}/upload/{{ entry.image }}" alt="{{ entry.title }}">
+    <div class="text-head">{{ entry.title }}</div>
+    <p class="text">{{ entry.text|raw }}</div>
 
 <div class="search-container-blog">
     {% include 'search.twig' %}

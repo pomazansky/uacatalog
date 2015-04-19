@@ -16,10 +16,10 @@
 
                 {% for entry in blogEntries|slice(currentIndex, inThisColumn) %}
                 <div class="blog-column-item">
-					<img src="{{ app.request.basepath }}/upload/{{ entry.getImgFile }}" alt="Найстильніше україньке висілля 2015">
+					<img src="{{ app.request.basepath }}/upload/{{ entry.image }}" alt="Найстильніше україньке висілля 2015">
 					<div class="text-head">{{ entry.title }}
 					</div>
-					<p class="text">{{ entry.text }}
+					<p class="text">{{ entry.text|raw }}
 					</p>
 					<a href="#" title="далі" class="read-more">далі ></a>
 				</div>

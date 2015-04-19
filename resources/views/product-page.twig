@@ -2,20 +2,20 @@
 	<div class="wrapper">
 		<div class="breadcrumbs">
 			<a href="#" title="Одяг">Одяг</a> >
-			<a href="#" title="Жіночий одяг">Жіночий одяг</a> >
-			<a href="#" title="Отаман"> Отаман</a> > 
-			<a href="#" title="Вишиванка батистова з поясом">Вишиванка батистова з поясом</a>
+			<a href="#" title="{{ product.category.name }}">{{ product.category.name }}</a> >
+			<a href="#" title="{{ product.manufacturer.name }}">{{ product.manufacturer.name }}</a> >
+			<a href="{{ url('product', {id: product.id}) }}" title="{{ product.name }}">{{ product.name }}</a>
 		</div>
 		<div class="clearfix">
 			<div class="product-large-foto">
-				<a href="#" title=""><img src="img/product_foto_1.jpg" alt=""></a>
+				<a href="#" title=""><img src="{{ app.request.basepath }}/img/product_foto_1.jpg" alt=""></a>
 			</div>
 			<div class="carousel">
 				<ul class="carousel-list">
-					<li><a href="#" title="product_foto_2"><img src="img/product_foto_2.jpg" alt="product_foto_2"></a></li>
-					<li><a href="#" title="product_foto_3"><img src="img/product_foto_3.jpg" alt="product_foto_3"></a></li>
-					<li><a href="#" title="product_foto_4"><img src="img/product_foto_4.jpg" alt="product_foto_4"></a></li>
-					<li><a href="#" title="product_foto_5"><img src="img/product_foto_5.jpg" alt="product_foto_5"></a></li>
+					<li><a href="#" title="product_foto_2"><img src="{{ app.request.basepath }}/img/product_foto_2.jpg" alt="product_foto_2"></a></li>
+					<li><a href="#" title="product_foto_3"><img src="{{ app.request.basepath }}/img/product_foto_3.jpg" alt="product_foto_3"></a></li>
+					<li><a href="#" title="product_foto_4"><img src="{{ app.request.basepath }}/img/product_foto_4.jpg" alt="product_foto_4"></a></li>
+					<li><a href="#" title="product_foto_5"><img src="{{ app.request.basepath }}/img/product_foto_5.jpg" alt="product_foto_5"></a></li>
 				</ul>
 				<ul class="carousel-nav">
 					<li><a href="#" title="down" class="down"></a></li><!--
@@ -23,9 +23,9 @@
 				</ul>
 			</div>
 			<div class="product-info">
-				<h1>Вишиванка батистова з поясом</h1>
-				<h3>Виробник:<a href="#" title="Отаман">Отаман</a></h3>
-				<h3>Категорія:<a href="#" title="Жіночий одяг. Блузи">Жіночий одяг. Блузи</a></h3>
+				<h1>{{ product.name }}</h1>
+				<h3>Виробник:<a href="#" title="{{ product.manufacturer.name }}н">{{ product.manufacturer.name }}</a></h3>
+				<h3>Категорія:<a href="#" title="{{ product.category.name }}">{{ product.category.name }}</a></h3>
 				<ul class="social-list">
 		    		<li><a href="#" title="fb" class="fb"> </a></li><!--
 		    		--><li><a href="#" title="vk" class="vk"> </a></li><!--
@@ -33,53 +33,52 @@
 		    		--><li><a href="#" title="pinterest" class="pinterest"> </a></li>
 		    	</ul>
 		    	<div class="price-block clearfix">
-		    		<span class="item-price">3400,00 ₴</span>
-		    		<a href="#" title="Сайт виробника" class="button-site">Сайт виробника</a>
-		    		<a href="#" title="В обране" class="button-fav">В обране</a>
+		    		<span class="item-price">{{ product.price }} ₴</span>
+                    {% if product.manufacturer.url %}
+		    		<a href="{{ product.manufacturer.url }}" title="Сайт виробника" class="button-site">Сайт виробника</a>
+		    		{% endif %}
+                    <a href="#" title="В обране" class="button-fav">В обране</a>
 		    	</div>
 		    	<h2>Опис</h2>
-		    	<p>Вишиванка жіноча стилізована з машинною вишивкою темно-синього кольору.</p>
-				<p>Тканина - батист, склад - шовк 50 %, бавовна 50%.</p>
-				<p>Машинна вишивка. Нитки - бавовняні.</p>
-				<p>Планка та рукава оздобені машинною вишивкою контрастного кольору, в основі якої лежать орнаментальні геометричні елементи, що взяті з рушників Центральної України.</p>
-				<p>Блуза виготовляється під замовлення. Термін виготовлення - до 15 днів.</p>
- 
-				<p class="last-word">Формуй свою традицію з Отаман!</p>
+		    	{{ product.description|raw }}
+                {% if product.manufacturer.shops|length > 0 %}
 				<h2>Де купити</h2>
 				<ul class="adres">
-					<li>«Отаман» Київ, вул. Михайлівська 21 А</li>
-					<li>«Отаман» Київ, вул.Грушевського, 28/2</li>
+                    {% for shop in product.manufacturer.shops %}
+					<li>{{ shop }}</li>
+                    {% endfor %}
 				</ul>
+                {% endif %}
 			</div>
 		</div>
 		<div class="such-brand-head">Інші товари виробника Отаман</div>
 		<div class="such-brand">
 			<div class="such-brand-item">
-				<img src="img/otaman_1.jpg" alt="otaman_1">
+				<img src="{{ app.request.basepath }}/img/otaman_1.jpg" alt="otaman_1">
 				<span class="image-label">Блуза "Гуцульська"</span>
 			</div>
 			<div class="such-brand-item">
-				<img src="img/otaman_2.jpg" alt="otaman_2">
+				<img src="{{ app.request.basepath }}/img/otaman_2.jpg" alt="otaman_2">
 				<span class="image-label">Пояс шкіряний чорний</span>
 			</div>
 			<div class="such-brand-item">
-				<img src="img/otaman_3.jpg" alt="otaman_3">
+				<img src="{{ app.request.basepath }}/img/otaman_3.jpg" alt="otaman_3">
 				<span class="image-label">Вишиванка батистова з молочною вишивкою</span>
 			</div>
 			<div class="such-brand-item">
-				<img src="img/otaman_4.jpg" alt="otaman_4">
+				<img src="{{ app.request.basepath }}/img/otaman_4.jpg" alt="otaman_4">
 				<span class="image-label">Вишиванка рожева з ручною вишивкою</span>
 			</div>
 			<div class="such-brand-item">
-				<img src="img/otaman_5.jpg" alt="otaman_5">
+				<img src="{{ app.request.basepath }}/img/otaman_5.jpg" alt="otaman_5">
 				<span class="image-label">Жупанчик зелений з поясом</span>
 			</div>
 			<div class="such-brand-item">
-				<img src="img/otaman_6.jpg" alt="otaman_6">
+				<img src="{{ app.request.basepath }}/img/otaman_6.jpg" alt="otaman_6">
 				<span class="image-label">Жупан жаккардовий синій</span>
 			</div>
 			<div class="such-brand-item">
-				<img src="img/otaman_7.jpg" alt="otaman_7">
+				<img src="{{ app.request.basepath }}/img/otaman_7.jpg" alt="otaman_7">
 				<span class="image-label">Жупан жаккардовий синій</span>
 			</div>
 		</div>

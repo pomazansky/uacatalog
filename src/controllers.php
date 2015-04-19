@@ -3,6 +3,7 @@
 use Symfony\Component\HttpFoundation\Response;
 use UACatalog\Controllers\AdminController;
 use UACatalog\Controllers\BlogController;
+use UACatalog\Controllers\ProductController;
 
 $app->get('/', function () use ($app) {
     return $app['twig']->render('index.twig');
@@ -10,11 +11,10 @@ $app->get('/', function () use ($app) {
 
 $app->mount('/blog', new BlogController());
 
+$app->mount('/product', new ProductController());
+
 $app->mount('/admin', new AdminController());
 
-$app->get('/product', function () use ($app) {
-    return $app['twig']->render('product.twig');
-});
 
 $app->error(function (\Exception $e, $code) use ($app) {
     if ($app['debug']) {

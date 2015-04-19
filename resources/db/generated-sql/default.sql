@@ -73,5 +73,21 @@ CREATE TABLE `manufacturer`
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB;
 
+-- ---------------------------------------------------------------------
+-- user
+-- ---------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `user`;
+
+CREATE TABLE `user`
+(
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `username` VARCHAR(32) NOT NULL,
+    `password` VARCHAR(255) NOT NULL,
+    `roles` TEXT NOT NULL,
+    PRIMARY KEY (`id`),
+    UNIQUE INDEX `username` (`username`)
+) ENGINE=InnoDB;
+
 # This restores the fkey checks, after having unset them earlier
 SET FOREIGN_KEY_CHECKS = 1;

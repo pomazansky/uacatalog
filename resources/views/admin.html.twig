@@ -79,7 +79,13 @@
 <body>
 <div class="container">
     {% block content %}
-        <div class="row" style="margin-top: 5%">
+        <div class="row" style="margin-top: 1%">
+            <div class="offset-by-nine three columns">
+                Hello, {{ app.security.token.user.username }}
+                <a href="{{ path('logout') }}">Logout</a>
+            </div>
+        </div>
+        <div class="row" style="margin-top: 3%">
             <div class="offset-by-two eight columns">
                 <h1>UACatalog Administration</h1>
             </div>

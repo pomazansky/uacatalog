@@ -1,0 +1,34 @@
+{% extends 'admin.html.twig' %}
+{% block content %}
+    <div class="row" style="margin-top: 15%">
+        <div class="offset-by-four four columns">
+            <h2>Login</h2>
+        </div>
+    </div>
+    <form action="{{ path('login_check') }}" method="post">
+        <div class="row">
+            <div class="offset-by-four four columns">
+                <div style="color: #ff0000">
+                    {{ error }}
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="offset-by-four four columns">
+                <label for="login">Login</label>
+                <input type="text" class="u-full-width" id="login" name="_username" value="{{ last_username }}"/>
+            </div>
+        </div>
+        <div class="row">
+            <div class="offset-by-four four columns">
+                <label for="password">Password</label>
+                <input type="password" class="u-full-width" id="password" name="_password" value=""/>
+            </div>
+        </div>
+        <div class="row">
+            <div class="offset-by-four four columns">
+                <input type="submit" class="button-primary u-pull-right" value="Login"/>
+            </div>
+        </div>
+    </form>
+{% endblock %}

@@ -80,4 +80,15 @@
         <column name="shops" type="array"/>
     </table>
 
+    <table name="user" phpName="User">
+        <column name="id" type="integer" required="true" primaryKey="true" autoIncrement="true"/>
+        <column name="username" type="varchar" size="32"  required="true"/>
+        <column name="password" type="varchar" size="72"  required="true"/>
+        <column name="roles" type="array" required="true"/>
+
+        <unique name="username">
+            <unique-column name="username"/>
+        </unique>
+    </table>
+
 </database>

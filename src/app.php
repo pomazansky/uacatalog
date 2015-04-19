@@ -12,8 +12,9 @@ use Silex\Provider\TwigServiceProvider;
 use Silex\Provider\UrlGeneratorServiceProvider;
 use Silex\Provider\ValidatorServiceProvider;
 use Silex\Translator;
-use Symfony\Component\Security\Core\Encoder\PlaintextPasswordEncoder;
+use Symfony\Component\Security\Core\Encoder\BCryptPasswordEncoder;
 use Symfony\Component\Translation\Loader\YamlFileLoader;
+use UACatalog\Provider\UserProvider;
 
 /**
  * @var Application $app
@@ -27,23 +28,31 @@ $app->register(new UrlGeneratorServiceProvider());
 
 $app->register(new SecurityServiceProvider(), [
     'security.firewalls' => [
-        'admin' => [
-            'pattern' => '^/',
-            'form'    => [
-                'login_path'         => '/login',
-                'username_parameter' => 'form[username]',
-                'password_parameter' => 'form[password]'
-            ],
-            'logout'    => true,
+        'default' => [
             'anonymous' => true,
-            'users'     => $app['security.users']
+            'pattern' => '^.*$',
+            'form' => [
+                'login_path' => '/login',
+                'check_path' => '/login_check'
+            ],
+            'logout' => [
+                'logout_path' => '/logout'
+            ],
+            'users' => $app->share(function () use ($app) {
+                return new UserProvider();
+            })
         ]
+    ],
+    'security.access_rules' => [
+        ['^/admin', 'ROLE_ADMIN'],
+    ],
+    'security.encoder.digest' => $app->share(function () {
+        return new BCryptPasswordEncoder(4);
+    }),
+    'security.role_hierarchy' => [
+        'ROLE_ADMIN' => ['ROLE_USER']
     ]
 ]);
-
-$app['security.encoder.digest'] = $app->share(function () {
-    return new PlaintextPasswordEncoder();
-});
 
 $app->register(new TranslationServiceProvider());
 

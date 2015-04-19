@@ -6,7 +6,7 @@ $manager = new \Propel\Runtime\Connection\ConnectionManagerSingle();
 $manager->setConfiguration(array (
   'dsn' => 'mysql:host=localhost;dbname=uacatalog',
   'user' => 'root',
-  'password' => '',
+  'password' => 'password',
   'settings' =>
   array (
     'charset' => 'utf8',

@@ -5,11 +5,7 @@ namespace UACatalog\Controllers;
 use Silex\Application;
 use Silex\ControllerCollection;
 use Silex\ControllerProviderInterface;
-use Symfony\Component\BrowserKit\Response;
-use Symfony\Component\HttpFoundation\Request;
-use UACatalog\Form\Type\BlogType;
-use UACatalog\Models\Blog;
-use UACatalog\Models\BlogQuery;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Class AdminController
@@ -19,106 +15,14 @@ class AdminController implements ControllerProviderInterface
 {
 
     /**
+     * @param Application $app
      * @return Response
      */
-    public function index()
+    public function index(Application $app)
     {
-        return new Response('Admin area');
+        return $app['twig']->render('admin.html.twig');
     }
 
-    /**
-     * @param Request $request
-     * @param Blog $entry
-     */
-    protected function saveUploadedFile($files, Blog $entry)
-    {
-        if ($files['img_file']) {
-            $extension = $files['img_file']->guessExtension();
-            if (!$extension) {
-                $extension = 'bin';
-            }
-            $fileName = 'blog' . $entry->getId() . '.' . $extension;
-            $files['img_file']->move(__DIR__ . '/../../../web/upload/', $fileName);
-
-            return $fileName;
-        }
-
-        return false;
-    }
-
-    /**
-     * @param Request $request
-     * @param Application $app
-     * @return mixed
-     */
-    public function addBlogEntry(Request $request, Application $app)
-    {
-        $entry = new Blog();
-        $form = $app['form.factory']->create(new BlogType(), $entry);
-
-        if ($request->isMethod('POST')) {
-            $form->bind($request);
-            if ($form->isValid()) {
-                $entry->save();
-
-                $entry->setImgFile($this->saveUploadedFile($request->files->get($form->getName()), $entry));
-
-                $entry->save();
-
-                return $app->redirect($app['url_generator']->generate('admin-blog-list'));
-            }
-        }
-
-        $data = [
-            'form' => $form->createView(),
-            'title' => 'Add new blog entry'
-        ];
-        return $app['twig']->render('blog-form.twig', $data);
-    }
-
-    public function listBlogEntries(Application $app)
-    {
-        $blogEntries = BlogQuery::create()->find();
-
-        return $app['twig']->render('blog-list.twig', [
-            'blogEntries' => $blogEntries
-        ]);
-    }
-
-    /**
-     * @param Application $app
-     * @param $id
-     * @return \Symfony\Component\HttpFoundation\RedirectResponse
-     * @throws \Propel\Runtime\Exception\PropelException
-     */
-    public function deleteBlogEntry(Application $app, $id)
-    {
-        $entry = BlogQuery::create()->findPk($id);
-        $entry->delete();
-        return $app->redirect($app['url_generator']->generate('admin-blog-list'));
-    }
-
-    public function modifyBlogEntry(Request $request, Application $app, $id)
-    {
-        $entry = BlogQuery::create()->findPk($id);
-        $form = $app['form.factory']->create(new BlogType(), $entry);
-
-        if ($request->isMethod('POST')) {
-            $form->bind($request);
-            if ($form->isValid()) {
-                $entry->setImgFile($this->saveUploadedFile($request->files->get($form->getName()), $entry));
-
-                $entry->save();
-                return $app->redirect($app['url_generator']->generate('admin-blog-list'));
-            }
-        }
-
-        $data = [
-            'form' => $form->createView(),
-            'title' => 'Modify blog entry'
-        ];
-        return $app['twig']->render('blog-form.twig', $data);
-    }
 
     /**
      * Returns routes to connect to the given application.
@@ -134,17 +38,53 @@ class AdminController implements ControllerProviderInterface
         $factory->get('/', '\\UACatalog\\Controllers\\AdminController::index')
             ->bind('admin');
 
-        $factory->get('/blog', '\\UACatalog\\Controllers\\AdminController::listBlogEntries')
+        $factory->get('/blog', '\\UACatalog\\Controllers\\Admin\\BlogController::listBlogEntries')
             ->bind('admin-blog-list');
 
-        $factory->match('/blog/add', '\\UACatalog\\Controllers\\AdminController::addBlogEntry')
+        $factory->match('/blog/add', '\\UACatalog\\Controllers\\Admin\\BlogController::addBlogEntry')
             ->bind('admin-blog-add');
 
-        $factory->match('/blog/modify/{id}', '\\UACatalog\\Controllers\\AdminController::modifyBlogEntry')
+        $factory->match('/blog/modify/{blogId}', '\\UACatalog\\Controllers\\Admin\\BlogController::modifyBlogEntry')
             ->bind('admin-blog-modify');
 
-        $factory->match('/blog/delete/{id}', '\\UACatalog\\Controllers\\AdminController::deleteBlogEntry')
+        $factory->match('/blog/delete/{blogId}', '\\UACatalog\\Controllers\\Admin\\BlogController::deleteBlogEntry')
             ->bind('admin-blog-delete');
+
+        $factory->get('/products', '\\UACatalog\\Controllers\\Admin\\ProductsController::listProducts')
+            ->bind('admin-products');
+
+        $factory->match('/product/add', '\\UACatalog\\Controllers\\Admin\\ProductsController::addProduct')
+            ->bind('admin-product-add');
+
+        $factory->match('/product/modify/{productId}', '\\UACatalog\\Controllers\\Admin\\ProductsController::modifyProduct')
+            ->bind('admin-product-modify');
+
+        $factory->match('/product/delete/{productId}', '\\UACatalog\\Controllers\\Admin\\ProductsController::deleteProduct')
+            ->bind('admin-product-delete');
+
+        $factory->get('/manufacturers', '\\UACatalog\\Controllers\\Admin\\ManufacturerController::listManufacturers')
+            ->bind('admin-manufacturers');
+
+        $factory->match('/manufacturer/add', '\\UACatalog\\Controllers\\Admin\\ManufacturerController::addManufacturer')
+            ->bind('admin-manufacturer-add');
+
+        $factory->match('/manufacturer/modify/{manufacturerId}', '\\UACatalog\\Controllers\\Admin\\ManufacturerController::modifyManufacturer')
+            ->bind('admin-manufacturer-modify');
+
+        $factory->match('/manufacturer/delete/{manufacturerId}', '\\UACatalog\\Controllers\\Admin\\ManufacturerController::deleteManufacturer')
+            ->bind('admin-manufacturer-delete');
+
+        $factory->get('/categories', '\\UACatalog\\Controllers\\Admin\\CategoryController::listCategories')
+            ->bind('admin-categories');
+
+        $factory->match('/category/add', '\\UACatalog\\Controllers\\Admin\\CategoryController::addCategory')
+            ->bind('admin-category-add');
+
+        $factory->match('/category/modify/{categoryId}', '\\UACatalog\\Controllers\\Admin\\CategoryController::modifyCategory')
+            ->bind('admin-category-modify');
+
+        $factory->match('/category/delete/{categoryId}', '\\UACatalog\\Controllers\\Admin\\CategoryController::deleteCategory')
+            ->bind('admin-category-delete');
 
         return $factory;
     }

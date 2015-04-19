@@ -1,0 +1,44 @@
+{% extends 'admin.html.twig' %}
+{% block content %}
+    <div class="row" style="margin-top: 5%">
+        <div class="offset-by-three six columns">
+            <h2>Manage categories</h2>
+        </div>
+    </div>
+    <div class="row">
+        <div class="twelve columns">
+            <a class="button button-primary" href="{{ url('admin') }}"><< Back to Dashboard</a>
+            <a class="button button-create" href="{{ url('admin-category-add') }}">Add new category</a>
+        </div>
+    </div>
+    <div class="row">
+        <div class="twelve columns">
+            {% if categories|length > 0 %}
+                <table class="u-full-width">
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Parent</th>
+                        <th>Modify</th>
+                        <th>Delete</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for category in categories %}
+                        <tr>
+                            <td>{{ category.id }}</td>
+                            <td>{{ category.name }}</td>
+                            <td>{{ category.getParentId }}</td>
+                            <td><a class="button button-update" href="{{ url('admin-category-modify', {categoryId: category.id}) }}">Modify</a></td>
+                            <td><a class="button button-delete" href="{{ url('admin-category-delete', {categoryId: category.id}) }}">Delete</a></td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <h4>No categories</h4>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}

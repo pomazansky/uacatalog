@@ -1,0 +1,44 @@
+{% extends 'admin.html.twig' %}
+{% block content %}
+    <div class="row" style="margin-top: 5%">
+        <div class="offset-by-three six columns">
+            <h2>Manage blog entries</h2>
+        </div>
+    </div>
+    <div class="row">
+        <div class="twelve columns">
+            <a class="button button-primary" href="{{ url('admin') }}"><< Back to Dashboard</a>
+            <a class="button button-create" href="{{ url('admin-blog-add') }}">Add new blog entry</a>
+        </div>
+    </div>
+    <div class="row">
+        <div class="twelve columns">
+        {% if blogEntries|length > 0 %}
+                <table class="u-full-width">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Image</th>
+                            <th>Title</th>
+                            <th>Modify</th>
+                            <th>Delete</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for entry in blogEntries %}
+                        <tr>
+                            <td>{{ entry.id }}</td>
+                            <td><img src="{{ app.request.basepath }}/upload/{{ entry.image }}" width="40px"></td>
+                            <td>{{ entry.title }}</td>
+                            <td><a class="button button-update" href="{{ url('admin-blog-modify', {blogId: entry.id}) }}">Modify</a></td>
+                            <td><a class="button button-delete" href="{{ url('admin-blog-delete', {blogId: entry.id}) }}">Delete</a></td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+        {% else %}
+            <h4>No blog entries</h4>
+        {% endif %}
+        </div>
+    </div>
+{% endblock %}

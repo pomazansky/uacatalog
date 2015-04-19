@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="icon" type="image/ico" href="{{ app.request.basepath }}/favicon.ico">
+
+    <link href='//fonts.googleapis.com/css?family=Roboto:400,300,500&amp;subset=latin,cyrillic' rel='stylesheet'
+          type='text/css'>
+
+    <link rel="stylesheet" href="{{ app.request.basepath }}/css/normalize.css">
+    <link rel="stylesheet" href="{{ app.request.basepath }}/css/skeleton.css">
+
+    <style>
+        .button.button-create, button.button-create, input.button-create[type="submit"], input.button-create[type="reset"], input.button-create[type="button"] {
+            color: #FFF;
+            background-color: green;
+            border-color: green;
+        }
+        .button.button-create:hover,
+        button.button-crate:hover,
+        input[type="submit"].button-create:hover,
+        input[type="reset"].button-create:hover,
+        input[type="button"].button-create:hover,
+        .button.button-crate:focus,
+        button.button-create:focus,
+        input[type="submit"].button-create:focus,
+        input[type="reset"].button-create:focus,
+        input[type="button"].button-create:focus {
+            color: #FFF;
+            background-color: darkgreen;
+            border-color: darkgreen;
+        }
+        .button.button-update, button.button-update, input.button-update[type="submit"], input.button-update[type="reset"], input.button-update[type="button"] {
+            color: #FFF;
+            background-color: orange;
+            border-color: orange;
+        }
+        .button.button-update:hover,
+        button.button-crate:hover,
+        input[type="submit"].button-update:hover,
+        input[type="reset"].button-update:hover,
+        input[type="button"].button-update:hover,
+        .button.button-crate:focus,
+        button.button-update:focus,
+        input[type="submit"].button-update:focus,
+        input[type="reset"].button-update:focus,
+        input[type="button"].button-update:focus {
+            color: #FFF;
+            background-color: darkorange;
+            border-color: darkorange;
+        }
+        .button.button-delete, button.button-delete, input.button-delete[type="submit"], input.button-delete[type="reset"], input.button-delete[type="button"] {
+            color: #FFF;
+            background-color: red;
+            border-color: red;
+        }
+        .button.button-delete:hover,
+        button.button-crate:hover,
+        input[type="submit"].button-delete:hover,
+        input[type="reset"].button-delete:hover,
+        input[type="button"].button-delete:hover,
+        .button.button-crate:focus,
+        button.button-delete:focus,
+        input[type="submit"].button-delete:focus,
+        input[type="reset"].button-delete:focus,
+        input[type="button"].button-delete:focus {
+            color: #FFF;
+            background-color: darkred;
+            border-color: darkred;
+        }
+    </style>
+
+    {% block head %}
+    {% endblock %}
+</head>
+<body>
+<div class="container">
+    {% block content %}
+        <div class="row" style="margin-top: 5%">
+            <div class="offset-by-two eight columns">
+                <h1>UACatalog Administration</h1>
+            </div>
+        </div>
+        <div class="row">
+            <div class="offset-by-two eight columns">
+                <h2>Blog</h2>
+            </div>
+        </div>
+        <div class="row">
+            <div class="offset-by-two eight columns">
+                <a class="button button-primary" href="{{ url('admin-blog-list') }}">Manage blog</a>
+            </div>
+        </div>
+        <div class="row">
+            <div class="offset-by-two eight columns">
+                <h2>Catalog</h2>
+            </div>
+        </div>
+        <div class="row">
+            <div class="offset-by-two eight columns">
+                <a class="button button-primary" href="{{ url('admin-categories') }}">Manage categories</a>
+                <a class="button button-primary" href="{{ url('admin-manufacturers') }}">Manage manufacurers</a>
+                <a class="button button-primary" href="{{ url('admin-products') }}">Manage products</a>
+            </div>
+        </div>
+    {% endblock %}
+</div>
+</body>
+</html>

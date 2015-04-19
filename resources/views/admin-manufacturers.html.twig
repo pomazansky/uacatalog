@@ -1,0 +1,46 @@
+{% extends 'admin.html.twig' %}
+{% block content %}
+    <div class="row" style="margin-top: 5%">
+        <div class="offset-by-three six columns">
+            <h2>Manage manufacturers</h2>
+        </div>
+    </div>
+    <div class="row">
+        <div class="twelve columns">
+            <a class="button button-primary" href="{{ url('admin') }}"><< Back to Dashboard</a>
+            <a class="button button-create" href="{{ url('admin-manufacturer-add') }}">Add new manufacturer</a>
+        </div>
+    </div>
+    <div class="row">
+        <div class="twelve columns">
+            {% if manufacturers|length > 0 %}
+                <table class="u-full-width">
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Url</th>
+                        <th>Shops</th>
+                        <th>Modify</th>
+                        <th>Delete</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for manufacturer in manufacturers %}
+                        <tr>
+                            <td>{{ manufacturer.id }}</td>
+                            <td>{{ manufacturer.name }}</td>
+                            <td>{{ manufacturer.url }}</td>
+                            <td>{% for shop in manufacturer.shops %}{{ shop }}<br>{% endfor %}</td>
+                            <td><a class="button button-update" href="{{ url('admin-manufacturer-modify', {manufacturerId: manufacturer.id}) }}">Modify</a></td>
+                            <td><a class="button button-delete" href="{{ url('admin-manufacturer-delete', {manufacturerId: manufacturer.id}) }}">Delete</a></td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <h4>No manufacturers</h4>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}

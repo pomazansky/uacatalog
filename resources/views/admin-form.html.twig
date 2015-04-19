@@ -1,0 +1,18 @@
+{% extends 'admin.html.twig' %}
+{% block head %}
+    <script src="{{ app.request.basepath }}/vendor/ckeditor/ckeditor.js"></script>
+{% endblock %}
+{% block content %}
+    <div class="row" style="margin-top: 5%">
+        <div class="offset-by-three six columns">
+            <h2>{{ title }}</h2>
+        </div>
+    </div>
+    <div class="row">
+        <div class="offset-by-two eight columns">
+            <form action="" method="post" {{ form_enctype(form) }}>
+                {{ form_widget(form) }}
+            </form>
+        </div>
+    </div>
+{% endblock %}

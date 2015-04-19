@@ -1,0 +1,48 @@
+{% extends 'admin.html.twig' %}
+{% block content %}
+    <div class="row" style="margin-top: 5%">
+        <div class="offset-by-three six columns">
+            <h2>Manage products</h2>
+        </div>
+    </div>
+    <div class="row">
+        <div class="twelve columns">
+            <a class="button button-primary" href="{{ url('admin') }}"><< Back to Dashboard</a>
+            <a class="button button-create" href="{{ url('admin-product-add') }}">Add new product</a>
+        </div>
+    </div>
+    <div class="row">
+        <div class="twelve columns">
+            {% if products|length > 0 %}
+                <table class="u-full-width">
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Image</th>
+                        <th>Title</th>
+                        <th>Manufacturer</th>
+                        <th>Category</th>
+                        <th>Modify</th>
+                        <th>Delete</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for product in products %}
+                        <tr>
+                            <td>{{ product.id }}</td>
+                            <td><img src="{{ app.request.basepath }}/upload/{{ product.getImg }}" width="40px"></td>
+                            <td>{{ product.name }}</td>
+                            <td>{{ product.manufacturer.name }}</td>
+                            <td>{{ product.category.name }}</td>
+                            <td><a class="button button-update" href="{{ url('admin-product-modify', {productId: product.id}) }}">Modify</a></td>
+                            <td><a class="button button-delete" href="{{ url('admin-product-delete', {productId: product.id}) }}">Delete</a></td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <h4>No products</h4>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}

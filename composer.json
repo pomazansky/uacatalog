@@ -2,6 +2,7 @@
   "name": "pomazansky/uacatalog",
   "description": "UA Web Challenge VII Semifinal Backend Junior Case",
   "minimum-stability": "dev",
+  "prefer-stable": true,
   "license": "proprietary",
   "authors": [
     {
@@ -11,17 +12,17 @@
   ],
   "require": {
     "php": ">5.5.0",
-    "silex/silex": "~1.0@dev",
-    "twig/twig": "~1.0",
-    "symfony/security": "2.8.x-dev",
-    "monolog/monolog": "1.13.1",
+    "silex/silex": "~1.2",
+    "twig/twig": "~1.8",
+    "symfony/security": "~2.6",
+    "monolog/monolog": "~1.11",
     "propel/propel": "~2.0@dev",
-    "propel/propel-service-provider": "2.x",
-    "symfony/form": "2.8.x-dev",
-    "symfony/twig-bridge": "2.8.x-dev"
+    "propel/propel-service-provider": "~2.0@dev",
+    "symfony/form": "~2.6",
+    "symfony/twig-bridge": "~2.6"
   },
   "require-dev": {
-    "symfony/browser-kit"   : "~2.7"
+    "symfony/browser-kit"   : "~2.6"
   },
   "autoload": {
     "psr-4": {
